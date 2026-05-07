@@ -68,20 +68,21 @@ function out.getType(nameOrPeripheral)
     for _, component in pairs(targetPeripheral.component) do
         table.insert(typeList, component.type)
     end
-    return typeList
+    return table.unpack(typeList)
 end
 
 function out.hasType(name, type)
-    assertExist(name)
-    -- 说实话，这里的检查会让下面函数内的检查显的有些多余，重新写一遍逻辑可能是更好的选择。
-    --但现在我有点懒了。
-    local typeList = out.getType(name)
+    if not out.isPresent(name) then
+        return nil
+    end
+    -- 但现在我有点懒了。
+    local typeList = {out.getType(name)}
     for i = 1, #typeList do
         if typeList[i] == type then
             return true
         end
     end
-    return nil
+    return false
 end
 
 function out.getMethods(name)
