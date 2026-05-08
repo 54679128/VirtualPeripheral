@@ -96,6 +96,7 @@ function out.getMethods(name)
         table.insert(result, funcName)
         ::continue::
     end
+    return result
 end
 
 function out.call(name, method, ...)
