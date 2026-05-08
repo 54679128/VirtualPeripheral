@@ -47,7 +47,7 @@ function out.warp(name)
                 goto continue
             end
             result[funcName] = function(...)
-                func(component, ...)
+                return table.unpack({ func(component, ...) })
             end
             ::continue::
         end
