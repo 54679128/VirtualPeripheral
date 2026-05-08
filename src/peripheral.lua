@@ -133,7 +133,7 @@ function out.find(type, filter)
         if not theFilter(peripheralName, out.warp(peripheralName)) then
             goto continue
         end
-        table.insert(result)
+        table.insert(result, out.warp(peripheralName))
         ::continue::
     end
     return table.unpack(result)
