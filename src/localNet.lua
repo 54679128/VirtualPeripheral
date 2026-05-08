@@ -10,6 +10,11 @@ function out.make()
     return #netList
 end
 
+--- 重置模块状态，清除所有已创建网络及相关外设信息
+function out.reset()
+    netList = {}
+end
+
 --- 向指定 id 所代表的网络添加外设
 ---@param lNetId integer
 ---@param peripheral a546.FakeContainer
