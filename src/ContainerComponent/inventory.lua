@@ -197,7 +197,7 @@ function inventory:pushItems(toName, fromSlot, ...)
     end
 
     -- 检查参数合法
-    if not localNet.isPresent(toName) or localNet.inSameNet(toName, self.fatherContainer.name) then
+    if not localNet.isPresent(toName) or not localNet.inSameNet(toName, self.fatherContainer.name) then
         error(("Can't find peripheral: %s"):format(toName), 2)
     end
     -- 查找远程外设
@@ -226,7 +226,7 @@ end
 
 function inventory:pullItems(fromName, fromSlot, ...)
     -- 检查参数合法
-    if not localNet.isPresent(fromName) or localNet.inSameNet(fromName, self.fatherContainer.name) then
+    if not localNet.isPresent(fromName) or not localNet.inSameNet(fromName, self.fatherContainer.name) then
         error(("Can't find peripheral: %s"):format(fromName), 2)
     end
     -- 查找远程外设
