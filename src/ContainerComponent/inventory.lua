@@ -237,7 +237,7 @@ function inventory:pullItems(fromName, fromSlot, ...)
     end
     ---@cast targetComponent a546.inventory
     -- 检查槽位
-    if fromSlot > self.invSize or fromName < 1 then
+    if fromSlot > self.invSize or fromSlot < 1 then
         error(("Param \"fromSlot\" must between %d and %d"):format(1, self.invSize), 2)
     end
 
