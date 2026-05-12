@@ -42,12 +42,12 @@ function out.warp(name)
     result.__name = name
     result.__type = localNet.getPeripheral(localNet.findPeripheral(name) --[[@as integer]], name).type
     for _, component in pairs(localNet.getPeripheral(localNet.findPeripheral(name) --[[@as integer]], name).component) do
-        for funcName, func in pairs(component) do
+        for funcName, func in pairs(getmetatable(component) or component) do
             if type(func) ~= "function" then
                 goto continue
             end
             result[funcName] = function(...)
-                func(component, ...)
+                return table.unpack({ func(component, ...) })
             end
             ::continue::
         end
@@ -68,20 +68,21 @@ function out.getType(nameOrPeripheral)
     for _, component in pairs(targetPeripheral.component) do
         table.insert(typeList, component.type)
     end
-    return typeList
+    return table.unpack(typeList)
 end
 
 function out.hasType(name, type)
-    assertExist(name)
-    -- 说实话，这里的检查会让下面函数内的检查显的有些多余，重新写一遍逻辑可能是更好的选择。
-    --但现在我有点懒了。
-    local typeList = out.getType(name)
+    if not out.isPresent(name) then
+        return nil
+    end
+    -- 但现在我有点懒了。
+    local typeList = {out.getType(name)}
     for i = 1, #typeList do
         if typeList[i] == type then
             return true
         end
     end
-    return nil
+    return false
 end
 
 function out.getMethods(name)
@@ -95,6 +96,7 @@ function out.getMethods(name)
         table.insert(result, funcName)
         ::continue::
     end
+    return result
 end
 
 function out.call(name, method, ...)
@@ -131,7 +133,7 @@ function out.find(type, filter)
         if not theFilter(peripheralName, out.warp(peripheralName)) then
             goto continue
         end
-        table.insert(result)
+        table.insert(result, out.warp(peripheralName))
         ::continue::
     end
     return table.unpack(result)
