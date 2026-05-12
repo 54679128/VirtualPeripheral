@@ -15,6 +15,7 @@ InventoryDev.__index = InventoryDev
 ---@param slot integer
 ---@param count? integer
 ---@return a546.FakeItem|nil
+---@return integer
 function InventoryDev:removeItem(slot, count)
     -- 参数处理和检查
     if slot > self.inv.invSize then
@@ -23,41 +24,31 @@ function InventoryDev:removeItem(slot, count)
         error(("Param slot: %d < 0"):format(slot), 2)
     end
     if not self.inv.itemList[slot] then
-        return nil
+        return nil, 0
     end
     local preRemove = count or self.inv.itemList[slot].count
     -- 移除物品
-    local function copyNbt(nbt)
-        local result = {}
-        for key, value in pairs(nbt) do
-            if type(value) == "table" then
-                result[key] = copyNbt(value)
-            else
-                result[key] = value
-            end
-        end
-        return result
-    end
     local resultItem
     if preRemove >= self.inv.itemList[slot].count then
-        resultItem = self.inv.itemList[slot]
+        resultItem = self.inv.itemList[slot].item
         self.inv.itemList[slot] = nil
     else
-        local item = self.inv.itemList[slot]
-        ---@cast item -nil
-        resultItem = item.make(item.name, preRemove, item.stackLimit, copyNbt(item.nbt))
-        item.count = item.count - preRemove
+        local itemStack = self.inv.itemList[slot]
+        ---@cast itemStack -nil
+        resultItem = itemStack.item
+        itemStack.count = itemStack.count - preRemove
     end
-    return resultItem
+    return resultItem, preRemove
 end
 
 --- 向组件中添加一个指定的物品</br>
 --- 必要时会将物品分别放入多个不同的槽位</br>
 --- 如果指定了槽位，则只会放入指定槽位中
 ---@param item a546.FakeItem
+---@param count integer
 ---@param slot? integer
 ---@return integer
-function InventoryDev:addItem(item, slot)
+function InventoryDev:addItem(item, count, slot)
     local itemList
     if slot then
         if slot < 0 then
@@ -68,51 +59,42 @@ function InventoryDev:addItem(item, slot)
     end
     itemList = self.inv.itemList
     local freeSlot = {}
-    local prepareTransfer = item.count
+    local prepareTransfer = count
     for i = slot or 1, slot or self.inv.invSize, 1 do
         local theSlot = i
-        local fakeItem = itemList[i]
-        if not fakeItem then
+        local itemStack = itemList[i]
+        if not itemStack then
             table.insert(freeSlot, theSlot)
             goto continue
         end
-        if fakeItem.name ~= item.name then
+        if itemStack.item.name ~= item.name then
             goto continue
         end
-        if util.serializeTable(item.nbt) ~= util.serializeTable(fakeItem.nbt) then
+        if util.serializeTable(item.nbt) ~= util.serializeTable(itemStack.item.nbt) then
             goto continue
         end
         local transferCount = math.min(prepareTransfer,
-            self.inv.storageCoefficient * fakeItem.stackLimit - fakeItem.count)
-        fakeItem.count = fakeItem.count + transferCount
+            self.inv.storageCoefficient * itemStack.item.stackLimit - itemStack.count)
+        itemStack.count = itemStack.count + transferCount
         prepareTransfer = prepareTransfer - transferCount
         if prepareTransfer == 0 then
-            return item.count
+            return count
         end
         ::continue::
-    end
-    local function copyNbt(nbt)
-        local result = {}
-        for key, value in pairs(nbt) do
-            if type(value) == "table" then
-                result[key] = copyNbt(value)
-            else
-                result[key] = value
-            end
-        end
-        return result
     end
     -- 既然能走到这，说明还有物品待分配
     for i = 1, #freeSlot do
         local transferCount = math.min(prepareTransfer,
             self.inv.storageCoefficient * item.stackLimit)
         prepareTransfer = prepareTransfer - transferCount
-        itemList[freeSlot[i]] = item.make(item.name, transferCount, item.stackLimit, copyNbt(item.nbt))
+        itemList[freeSlot[i]] = {}
+        itemList[freeSlot[i]].item = item
+        itemList[freeSlot[i]].count = transferCount
         if prepareTransfer == 0 then
-            return item.count
+            return count
         end
     end
-    return item.count - prepareTransfer
+    return count - prepareTransfer
 end
 
 ---@class a546.FakeItem
@@ -127,14 +109,12 @@ out.FakeItem = FakeItem
 
 --- 创建一个假物品
 ---@param name string
----@param count number
 ---@param stackLimit number
 ---@param nbt table<string,any>
 ---@return a546.FakeItem
-function FakeItem.make(name, count, stackLimit, nbt)
+function FakeItem.make(name, stackLimit, nbt)
     local o = setmetatable({}, FakeItem)
     o.name = name
-    o.count = math.min(count or 1, stackLimit)
     o.stackLimit = stackLimit
     o.nbt = nbt
     return o
@@ -144,7 +124,7 @@ end
 ---@field type "inventory" 标识组件类型，这应该是唯一的
 ---@field invSize number 容器大小
 ---@field storageCoefficient number 容器单槽位存储系数，单槽位可存储物品数 = 存储系数 * 该槽位物品堆叠上限
----@field itemList table<slot,a546.FakeItem|nil> 物品列表
+---@field itemList table<slot,{item:a546.FakeItem,count:integer}|nil> 物品列表
 ---@field dev a546.inventoryDev 供开发者和组件自身使用的函数集合
 local inventory = {}
 inventory.__index = inventory
@@ -166,11 +146,12 @@ end
 
 function inventory:list()
     local result = {}
-    for slot, itemInfo in pairs(self.itemList) do
+    for slot, itemStack in pairs(self.itemList) do
+        local item = itemStack.item
         result[slot] = {}
-        result[slot].name = itemInfo.name
-        result[slot].count = itemInfo.count
-        result[slot].nbt = util.serializeTable(itemInfo.nbt)
+        result[slot].name = item.name
+        result[slot].count = itemStack.count
+        result[slot].nbt = util.serializeTable(item.nbt)
         ::continue::
     end
     return result
@@ -209,19 +190,18 @@ function inventory:pushItems(toName, fromSlot, ...)
     ---@cast targetComponent a546.inventory
 
     -- 移除物品
-    local transferItem = self.dev:removeItem(fromSlot, limit)
+    local transferItem, removedCount = self.dev:removeItem(fromSlot, limit)
     if not transferItem then
         return 0
     end
     -- 转移物品
-    local actuallyTransfer = targetComponent.dev:addItem(transferItem, toSlot)
-    if actuallyTransfer == transferItem.count then
+    local actuallyTransfer = targetComponent.dev:addItem(transferItem, removedCount, toSlot)
+    if actuallyTransfer == removedCount then
         return actuallyTransfer
     end
     -- 处理无法转移的物品
     self.dev:removeItem(fromSlot)
-    transferItem.count = transferItem.count - actuallyTransfer
-    self.dev:addItem(transferItem, fromSlot)
+    self.dev:addItem(transferItem, removedCount - actuallyTransfer, fromSlot)
 end
 
 function inventory:pullItems(fromName, fromSlot, ...)
