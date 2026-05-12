@@ -3,13 +3,13 @@ local localNet = require("localNet")
 -- 模拟 `peripheral` API，将被注入全局环境中
 local out = {}
 
----@class a546.WarpPeripheral
+---@class a546.WrapPeripheral
 ---@field __name string
 ---@field __type string
 ---@field [string] function
 
 --- 检查一个外设是否存在
----@param name string|a546.WarpPeripheral
+---@param name string|a546.WrapPeripheral
 local function assertExist(name)
     local theName
     if type(name) == "table" then
@@ -36,7 +36,7 @@ function out.getNames()
     return result
 end
 
-function out.warp(name)
+function out.wrap(name)
     assertExist(name)
     local result = {}
     result.__name = name
@@ -58,7 +58,7 @@ end
 function out.getType(nameOrPeripheral)
     assertExist(nameOrPeripheral)
     if type(nameOrPeripheral) == "table" then
-        ---@cast nameOrPeripheral a546.WarpPeripheral
+        ---@cast nameOrPeripheral a546.WrapPeripheral
         return nameOrPeripheral.__type
     end
     local targetPeripheral = localNet.getPeripheral(localNet.findPeripheral(nameOrPeripheral) --[[@as integer]],
@@ -87,7 +87,7 @@ end
 
 function out.getMethods(name)
     assertExist(name)
-    local targetPeripheral = out.warp(name)
+    local targetPeripheral = out.wrap(name)
     local result = {}
     for funcName, value in pairs(targetPeripheral) do
         if not type(value) ~= "function" then
@@ -130,10 +130,10 @@ function out.find(type, filter)
         if per.type ~= type then
             goto continue
         end
-        if not theFilter(peripheralName, out.warp(peripheralName)) then
+        if not theFilter(peripheralName, out.wrap(peripheralName)) then
             goto continue
         end
-        table.insert(result, out.warp(peripheralName))
+        table.insert(result, out.wrap(peripheralName))
         ::continue::
     end
     return table.unpack(result)

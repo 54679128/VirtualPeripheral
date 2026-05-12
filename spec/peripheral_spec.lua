@@ -22,7 +22,7 @@ local function fakeComponent(type)
 end
 
 describe("模拟peripheralAPI测试", function()
-    it("warp测试", function() -- 对于这个测试，还缺少多组件、多方法情况下的测试
+    it("wrap测试", function() -- 对于这个测试，还缺少多组件、多方法情况下的测试
         local aNet = localNet.make()
         for i = 1, 100, 1 do
             local tempFuncName = randomString(8)
@@ -33,7 +33,7 @@ describe("模拟peripheralAPI测试", function()
             end
             local aC = containerMaker.make("test", tempComponent)
             localNet.addPeripheral(aNet, aC)
-            local wrappedPeripheral = peripheral.warp(aC.name)
+            local wrappedPeripheral = peripheral.wrap(aC.name)
             assert.is.equal(wrappedPeripheral.__name, aC.name)
             assert.is.equal(wrappedPeripheral.__type, aC.type)
             assert.is.equal(randomNumber, wrappedPeripheral[tempFuncName]() or error("错误的函数"))
@@ -156,7 +156,7 @@ describe("模拟peripheralAPI测试", function()
         local aC = containerMaker.make(randomString(5), tempComponent)
         localNet.addPeripheral(aNet, aC)
         local findPeripheral = peripheral.find(aC.type)
-        local wrappedPeripheral = peripheral.warp(aC.name)
+        local wrappedPeripheral = peripheral.wrap(aC.name)
         assert.is.equal(findPeripheral.__name, wrappedPeripheral.__name)
         assert.is.equal(findPeripheral.__type, wrappedPeripheral.__type)
         assert.is.Function(findPeripheral["test_func"])
