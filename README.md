@@ -110,6 +110,10 @@ localNet.removePeripheral(aNet, chest.name)
 busted
 ```
 
+## 一些注意事项
+
+确保你在`LUA_PATH`环境变量中添加了`?.lua`和`?/init.lua`模块查找路径；
+
 ## 展望
 
 - 目前，`pullFluid`和`pullItems`等方法只能访问同一网络的限制是在函数内手动编写的，将来应该会使用其它方式限制；
