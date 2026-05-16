@@ -23,7 +23,7 @@ local function loadApi(moduleName)
     local moduleActuallyName = moduleName:match("%.?([^%.]+)$")
     --print(("实际模块名为：%s"):format(moduleActuallyName))
     _G[moduleActuallyName] = require(moduleName)
-    print(("成功注入 \"%s\" API"):format(moduleActuallyName))
+    --print(("成功注入 \"%s\" API"):format(moduleActuallyName))
 end
 
 require = modifiedRequire
