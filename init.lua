@@ -30,8 +30,8 @@ require = modifiedRequire
 --print(("成功替换 require 函数"))
 
 -- 加载第一层模块
-loadModule("attach")
-loadModule("detach")
+loadModule("ContainerComponent.inventory")
+loadModule("ContainerComponent.tank")
 loadModule("localNet")
 loadApi("peripheral")
 loadModule("containerMaker")
