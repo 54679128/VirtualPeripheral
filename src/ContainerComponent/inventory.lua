@@ -26,7 +26,8 @@ function InventoryDev:removeItem(slot, count)
     if not self.inv.itemList[slot] then
         return nil, 0
     end
-    local preRemove = count or self.inv.itemList[slot].count
+    count = count or self.inv.itemList[slot].count
+    local preRemove = math.min(count , self.inv.itemList[slot].count)
     -- 移除物品
     local resultItem
     if preRemove >= self.inv.itemList[slot].count then
