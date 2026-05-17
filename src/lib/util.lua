@@ -58,6 +58,19 @@ function out.readOnly(theTable, usingCache)
     end
     pMetaTable.__newindex = function(t, k, v)
     end
+    pMetaTable.__len = function(t)
+        return #theTable
+    end
+    pMetaTable.__pairs = function(t)
+        return function(_, oldValue)
+            local key, newValue = next(theTable, oldValue)
+            if type(newValue) == "table" then
+                return key, out.readOnly(newValue, usingCache)
+            else
+                return key, newValue
+            end
+        end, t, nil
+    end
     setmetatable(proxy, pMetaTable)
     if usingCache then
         cache[theTable] = proxy
