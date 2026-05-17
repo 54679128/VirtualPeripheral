@@ -52,6 +52,14 @@ function out.readOnly(theTable, usingCache)
         local v = theTable[k]
         if type(v) == "table" then
             return out.readOnly(v, usingCache)
+        elseif type(v) == "function" then
+            return function(firstParam, ...)
+                if firstParam == proxy then
+                    return v(theTable, ...)
+                else
+                    return v(firstParam, ...)
+                end
+            end
         else
             return v
         end

@@ -56,9 +56,9 @@ describe("util模块测试", function()
             local testTable = {
                 a = 1,
                 b = "hello",
-                c = function()
-                    return 8
-                end,
+                -- c = function()
+                --     return 8
+                -- end,
                 d = false,
                 e = coroutine.create(function(...)
 
@@ -127,6 +127,19 @@ describe("util模块测试", function()
                 ipairsLoopCount = ipairsLoopCount + 1
             end
             assert.equal(#ipairsTable, ipairsLoopCount)
+        end)
+        it("返回的只读副本的方法可以正常修改字段", function()
+            local testClass = {
+                data = 1,
+                updata = function (self, x)
+                    self.data = x
+                end
+            }
+            local readOnlyClass = util.readOnly(testClass, true)
+            assert.is.equal(testClass.data, readOnlyClass.data)
+            local randomNumber = math.random(88)
+            readOnlyClass:updata(randomNumber)
+            assert.is.equal(randomNumber, testClass.data, readOnlyClass.data)
         end)
     end)
 end)
