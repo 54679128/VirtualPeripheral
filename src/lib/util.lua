@@ -37,10 +37,10 @@ local function serializeTable(theTable, visitedTable, father, tab)
 end
 
 local cache = setmetatable({}, { __mode = "k" })
---- 使一个表只读
+--- 返回一个表的只读代理
 ---@generic T:table
 ---@param theTable T
----@param usingCache? boolean
+---@param usingCache? boolean 当theTable是循环嵌套表时，必须启用该选项
 ---@return T
 function out.readOnly(theTable, usingCache)
     if usingCache and cache[theTable] then
