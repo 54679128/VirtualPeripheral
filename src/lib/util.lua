@@ -36,6 +36,35 @@ local function serializeTable(theTable, visitedTable, father, tab)
     return result
 end
 
+local cache = setmetatable({}, { __mode = "k" })
+--- 使一个表只读
+---@generic T:table
+---@param theTable T
+---@param usingCache? boolean
+---@return T
+function out.readOnly(theTable, usingCache)
+    if usingCache and cache[theTable] then
+        return cache[theTable]
+    end
+    local proxy = {}
+    local pMetaTable = {}
+    pMetaTable.__index = function(t, k)
+        local v = theTable[k]
+        if type(v) == "table" then
+            return out.readOnly(v, usingCache)
+        else
+            return v
+        end
+    end
+    pMetaTable.__newindex = function(t, k, v)
+    end
+    setmetatable(proxy, pMetaTable)
+    if usingCache then
+        cache[theTable] = proxy
+    end
+    return proxy
+end
+
 function out.serializeTable(theTable)
     return serializeTable(theTable, { [tostring(theTable)] = "theTable" }, "theTable", 1)
 end
