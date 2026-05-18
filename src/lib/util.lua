@@ -36,7 +36,7 @@ local function serializeTable(theTable, visitedTable, father, tab)
     return result
 end
 
-local cache = setmetatable({}, { __mode = "k" })
+local cache = setmetatable({}, { __mode = "v" })
 --- 返回一个表的只读代理
 ---@generic T:table
 ---@param theTable T
