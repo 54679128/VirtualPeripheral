@@ -131,7 +131,7 @@ describe("util模块测试", function()
         it("返回的只读副本的方法可以正常修改字段", function()
             local testClass = {
                 data = 1,
-                updata = function (self, x)
+                updata = function(self, x)
                     self.data = x
                 end
             }
@@ -140,6 +140,10 @@ describe("util模块测试", function()
             local randomNumber = math.random(88)
             readOnlyClass:updata(randomNumber)
             assert.is.equal(randomNumber, testClass.data, readOnlyClass.data)
+        end)
+        it("启用缓存时会缓存只读副本，避免制造只读副本的只读副本", function()
+            local testClass = {}
+            assert.is.equal(util.readOnly(testClass, true), util.readOnly(util.readOnly(testClass, true), true))
         end)
     end)
 end)
