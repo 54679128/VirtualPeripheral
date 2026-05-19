@@ -1,4 +1,5 @@
 local localNet = require("localNet")
+local dataHolder = require("dataHolder")
 local util = require("lib.util")
 -- 通用流体容器外设组件
 local out = {}
@@ -153,7 +154,9 @@ function out.make(size, storageCoefficient, capacityList)
     end
     o.dev = setmetatable({}, TankDev)
     o.dev.tank = o
-    return o
+    dataHolder.registerComponents(o, util.readOnly(o, true))
+    return util.readOnly(o, true)
+    -- return o
 end
 
 function Tank:tanks()
@@ -196,7 +199,7 @@ function Tank:pushFluid(toName, ...)
     fluidName = fluidName or selfFirstFluidStack.fluid.name
 
     -- 检查参数合法
-    if not localNet.isPresent(toName) or not localNet.inSameNet(toName, self.fatherContainer.name) then
+    if not localNet.isPresent(toName) or not localNet.inSameNet(toName, dataHolder.getContainer(self).name) then
         error(("Can't find peripheral: %s"):format(toName), 2)
     end
     -- 查找远程外设
@@ -213,7 +216,7 @@ function Tank:pushFluid(toName, ...)
         return 0
     end
 
-    --print(("从 %s 移除了 %.2f %s"):format(self.fatherContainer.name, removedAmount, transferFluid.name))
+    --print(("从 %s 移除了 %.2f %s"):format(dataHolder.getContainer(self).name, removedAmount, transferFluid.name))
 
     -- 转移流体
     local actuallyTransfer = targetComponent.dev:addFluid(transferFluid, removedAmount)
@@ -226,18 +229,18 @@ function Tank:pushFluid(toName, ...)
     -- 处理无法转移的流体
     self.dev:removeFluid(fluidName)
 
-    --print(("从 %s 移除了所有流体"):format(self.fatherContainer.name))
+    --print(("从 %s 移除了所有流体"):format(dataHolder.getContainer(self).name))
 
     self.dev:addFluid(transferFluid, removedAmount - actuallyTransfer)
 
-    --print(("向 %s 添加了 %.2f %s"):format(self.fatherContainer.name, removedAmount - actuallyTransfer, transferFluid.name))
+    --print(("向 %s 添加了 %.2f %s"):format(dataHolder.getContainer(self).name, removedAmount - actuallyTransfer, transferFluid.name))
 
     return actuallyTransfer
 end
 
 function Tank:pullFluid(fromName, ...)
     -- 检查参数合法
-    if not localNet.isPresent(fromName) or not localNet.inSameNet(fromName, self.fatherContainer.name) then
+    if not localNet.isPresent(fromName) or not localNet.inSameNet(fromName, dataHolder.getContainer(self).name) then
         error(("Can't find peripheral: %s"):format(fromName), 2)
     end
     -- 查找远程外设
@@ -248,7 +251,7 @@ function Tank:pullFluid(fromName, ...)
     ---@cast targetComponent a546.Tank
 
     -- 调用对方的push方法
-    return targetComponent:pushFluid(self.fatherContainer.name, ...)
+    return targetComponent:pushFluid(dataHolder.getContainer(self).name, ...)
 end
 
 return out

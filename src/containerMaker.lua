@@ -1,4 +1,8 @@
 -- 规定如何组装一个假容器，并规定这个容器的相关信息如何存储
+
+local dataHolder = require("dataHolder")
+local util = require("lib.util")
+
 local out = {}
 ---@type table<string,number>
 local containerId = {}
@@ -27,12 +31,16 @@ function out.make(type, ...)
             goto continue
         end
         o.component[component.type] = component
+        dataHolder.bindComponent(o, component)
+        -- 由于传入的是只读副本，无法修改外设组件的字段
         component.fatherContainer = o
         ::continue::
     end
     containerId[type] = id + 1
     o.type = type
-    return o
+    --
+    dataHolder.registerContainer(o)
+    return util.readOnly(o, true)
 end
 
 return out

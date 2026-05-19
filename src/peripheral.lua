@@ -1,4 +1,5 @@
 local localNet = require("localNet")
+local dataHolder = require("dataHolder")
 
 -- 模拟 `peripheral` API，将被注入全局环境中
 local out = {}
@@ -39,9 +40,12 @@ end
 function out.wrap(name)
     assertExist(name)
     local result = {}
+    local targetPeripheral = localNet.getPeripheral(localNet.findPeripheral(name) --[[@as integer]], name)
+    --local targetPeripheral = dataHolder.getContainer(name)
+    ---@cast targetPeripheral -nil
     result.__name = name
-    result.__type = localNet.getPeripheral(localNet.findPeripheral(name) --[[@as integer]], name).type
-    for _, component in pairs(localNet.getPeripheral(localNet.findPeripheral(name) --[[@as integer]], name).component) do
+    result.__type = targetPeripheral.type
+    for _, component in pairs(targetPeripheral.component) do
         for funcName, func in pairs(getmetatable(component) or component) do
             if type(func) ~= "function" then
                 goto continue
@@ -61,8 +65,9 @@ function out.getType(nameOrPeripheral)
         ---@cast nameOrPeripheral a546.WrapPeripheral
         return nameOrPeripheral.__type
     end
-    local targetPeripheral = localNet.getPeripheral(localNet.findPeripheral(nameOrPeripheral) --[[@as integer]],
-        nameOrPeripheral)
+    -- local targetPeripheral = localNet.getPeripheral(localNet.findPeripheral(nameOrPeripheral) --[[@as integer]], nameOrPeripheral)
+    local targetPeripheral = dataHolder.getContainer(nameOrPeripheral)
+    ---@cast targetPeripheral -nil
     local typeList = {}
     table.insert(typeList, targetPeripheral.type)
     for _, component in pairs(targetPeripheral.component) do

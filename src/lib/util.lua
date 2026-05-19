@@ -48,6 +48,10 @@ function out.readOnly(theTable, usingCache)
     end
     local proxy = {}
     local pMetaTable = {}
+    if usingCache then
+        cache[theTable] = proxy
+        cache[proxy] = proxy
+    end
     pMetaTable.__index = function(t, k)
         local v = theTable[k]
         if type(v) == "table" then
@@ -60,6 +64,8 @@ function out.readOnly(theTable, usingCache)
                     return v(firstParam, ...)
                 end
             end
+        elseif k == "the" then
+            return "只读表"
         else
             return v
         end
@@ -79,11 +85,13 @@ function out.readOnly(theTable, usingCache)
             end
         end, t, nil
     end
-    setmetatable(proxy, pMetaTable)
-    if usingCache then
-        cache[theTable] = proxy
-        cache[proxy] = proxy
+    local originMetaTable = getmetatable(theTable)
+    if originMetaTable then
+        pMetaTable.__metatable = out.readOnly(getmetatable(theTable), true)
+    else
+        pMetaTable.__metatable = {}
     end
+    setmetatable(proxy, pMetaTable)
     return proxy
 end
 
