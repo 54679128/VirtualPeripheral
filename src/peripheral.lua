@@ -55,7 +55,7 @@ end
 function out.getType(nameOrPeripheral)
     assertExist(nameOrPeripheral)
     if type(nameOrPeripheral) == "table" then
-        ---@cast nameOrPeripheral a546.WrapPeripheralFfin
+        ---@cast nameOrPeripheral a546.WrapPeripheral
         return nameOrPeripheral.__type
     end
     local targetPeripheral = localNet.getPeripheral(localNet.findPeripheral(nameOrPeripheral) --[[@as integer]],
