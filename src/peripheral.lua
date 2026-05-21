@@ -38,18 +38,15 @@ end
 
 function out.wrap(name)
     assertExist(name)
+    local targetPeripheral = localNet.getPeripheral(localNet.findPeripheral(name) --[[@as integer]], name)
     local result = {}
     result.__name = name
-    result.__type = localNet.getPeripheral(localNet.findPeripheral(name) --[[@as integer]], name).type
-    for _, component in pairs(localNet.getPeripheral(localNet.findPeripheral(name) --[[@as integer]], name).component) do
-        for funcName, func in pairs(getmetatable(component) or component) do
-            if type(func) ~= "function" then
-                goto continue
-            end
-            result[funcName] = function(...)
-                return table.unpack({ func(component, ...) })
-            end
-            ::continue::
+    result.__type = targetPeripheral.type
+    -- 前面检查过了
+    ---@diagnostic disable-next-line: param-type-mismatch
+    for _, funcName in ipairs(out.getMethods(name)) do
+        result[funcName] = function(...)
+            return out.call(name, funcName, ...)
         end
     end
     return result
@@ -58,7 +55,7 @@ end
 function out.getType(nameOrPeripheral)
     assertExist(nameOrPeripheral)
     if type(nameOrPeripheral) == "table" then
-        ---@cast nameOrPeripheral a546.WrapPeripheral
+        ---@cast nameOrPeripheral a546.WrapPeripheralFfin
         return nameOrPeripheral.__type
     end
     local targetPeripheral = localNet.getPeripheral(localNet.findPeripheral(nameOrPeripheral) --[[@as integer]],
@@ -76,7 +73,7 @@ function out.hasType(name, type)
         return nil
     end
     -- 但现在我有点懒了。
-    local typeList = {out.getType(name)}
+    local typeList = { out.getType(name) }
     for i = 1, #typeList do
         if typeList[i] == type then
             return true
@@ -87,16 +84,26 @@ end
 
 function out.getMethods(name)
     assertExist(name)
-    local targetPeripheral = out.wrap(name)
+    local targetPeripheral = localNet.getPeripheral(localNet.findPeripheral(name) --[[@as integer]],
+        name)
     local result = {}
-    for funcName, value in pairs(targetPeripheral) do
-        if not type(value) ~= "function" then
-            goto continue
+    for _, component in pairs(targetPeripheral.component) do
+        for funcName, maybeFunc in pairs(getmetatable(component) or {}) do
+            if type(maybeFunc) ~= "function" then
+                goto continue
+            end
+            if string.find(funcName, "__") then
+                goto continue
+            end
+            table.insert(result, funcName)
+            ::continue::
         end
-        table.insert(result, funcName)
-        ::continue::
     end
-    return result
+    if next(result) then
+        return result
+    else
+        return nil
+    end
 end
 
 function out.call(name, method, ...)
@@ -104,17 +111,13 @@ function out.call(name, method, ...)
     local targetMethod
     local targetPeripheral = localNet.getPeripheral(localNet.findPeripheral(name) --[[@as integer]], name)
     for _, component in pairs(targetPeripheral.component) do
-        for funcName, func in pairs(component) do
-            if type(func) ~= "function" then
-                goto continue
-            end
-            if funcName ~= method then
-                goto continue
-            end
-            targetMethod = func
-            break
-            ::continue::
+        if not component[method] then            
+            goto continue
         end
+        targetMethod = function(...)
+            return component[method](component, ...)
+        end
+        ::continue::
     end
     return (targetMethod or function()
         error(("Can't find method: %s in peripheral: %s"):format(tostring(method), name))
