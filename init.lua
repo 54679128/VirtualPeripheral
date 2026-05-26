@@ -35,6 +35,7 @@ loadModule("ContainerComponent.tank")
 loadModule("localNet")
 loadApi("peripheral")
 loadModule("containerMaker")
+loadModule("config")
 
 require = originRequire
 --print(("成功恢复 require 函数"));
