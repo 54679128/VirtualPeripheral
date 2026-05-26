@@ -7,8 +7,27 @@ local containerId = {}
 ---@field name string
 ---@field type string
 ---@field component table<string,a546.Component>
-local container = {}
+---@field private __binding boolean
+local container = {__binding = false}
 container.__index = container
+
+--- 将某个外设组件绑定到自身
+---@param source a546.Component
+function container:bind(source)
+    if self.__binding then
+        return
+    end
+    if self.component[source.type] then
+        error(("peripheral: %s has bind this type component"):format(self.name), 3)
+    end
+    self.__binding = true
+    local result, msg = pcall(source.bindTo, source, self)
+    self.__binding = false
+    if not result then
+        error(msg, 3)
+    end
+    self.component[source.type] = source
+end
 
 --- 制造一个假容器外设
 ---@param type string 容器类型
@@ -26,8 +45,9 @@ function out.make(type, ...)
         if installComponent[component.type] then
             goto continue
         end
-        o.component[component.type] = component
-        component.fatherContainer = o
+        -- o.component[component.type] = component
+        -- component.fatherContainer = o
+        component:bindTo(o)
         ::continue::
     end
     containerId[type] = id + 1

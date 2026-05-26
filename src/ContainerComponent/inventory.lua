@@ -1,5 +1,6 @@
 local util = require("lib.util")
 local localNet = require("localNet")
+local Base = require("ContainerComponent.base")
 -- 通用物品容器外设组件
 local out = {}
 
@@ -27,7 +28,7 @@ function InventoryDev:removeItem(slot, count)
         return nil, 0
     end
     count = count or self.inv.itemList[slot].count
-    local preRemove = math.min(count , self.inv.itemList[slot].count)
+    local preRemove = math.min(count, self.inv.itemList[slot].count)
     -- 移除物品
     local resultItem
     if preRemove >= self.inv.itemList[slot].count then
@@ -127,11 +128,12 @@ end
 ---@field storageCoefficient number 容器单槽位存储系数，单槽位可存储物品数 = 存储系数 * 该槽位物品堆叠上限
 ---@field itemList table<slot,{item:a546.FakeItem,count:integer}|nil> 物品列表
 ---@field dev a546.inventoryDev 供开发者和组件自身使用的函数集合
-local inventory = {}
+local inventory = setmetatable({}, Base)
 inventory.__index = inventory
 
 function out.make(size, storageCoefficient)
     local o = setmetatable({}, inventory)
+    ---@cast o a546.inventory
     o.type = "inventory"
     o.invSize = math.max(size or 1, 1)
     o.storageCoefficient = storageCoefficient

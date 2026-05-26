@@ -2,6 +2,7 @@ local localNet = require("localNet")
 local containerMaker = require("containerMaker")
 local peripheral = require("peripheral")
 local util = require("lib.util")
+local Base = require("ContainerComponent.base")
 
 local function randomString(len)
     if len < 1 then
@@ -22,14 +23,15 @@ end
 ---@return a546.Component
 local function fakeComponent(type, ...)
     local funcList = { ... }
-    local meta = {}
+    local meta = setmetatable({}, Base)
+    ---@cast meta +table<string,function>
     meta.__index = meta
     for _, funcStack in ipairs(funcList) do
         meta[funcStack.name] = function(self, ...)
             return funcStack.func(self, ...)
         end
     end
-    return setmetatable({ type = type }, meta)
+    return setmetatable({ type = type }, meta)--[[@as a546.Component]]
 end
 
 describe("模拟peripheralAPI测试", function()
@@ -179,6 +181,7 @@ describe("对于peripheral模块", function()
     local randomNumber
     local aNet
     local componentA
+    local componentAA
     local componentB
     local componentC
     local aC
@@ -190,6 +193,17 @@ describe("对于peripheral模块", function()
         randomNumber = math.random(88)
         aNet = localNet.make()
         componentA = fakeComponent("testComponentA", {
+            name = randomFuncName .. "_1",
+            func = function()
+                return randomNumber
+            end
+        }, {
+            name = randomFuncName .. "_2",
+            func = function(self)
+                return self.type
+            end
+        })
+        componentAA = fakeComponent("testComponentA", {
             name = randomFuncName .. "_1",
             func = function()
                 return randomNumber
@@ -213,7 +227,7 @@ describe("对于peripheral模块", function()
         })
         componentC = fakeComponent("testComponentC")
         aC = containerMaker.make("testA", componentA)
-        bC = containerMaker.make("testA", componentA, componentB)
+        bC = containerMaker.make("testA", componentAA, componentB)
         cC = containerMaker.make("testB", componentC)
         dC = containerMaker.make("testB")
         localNet.addPeripheral(aNet, aC)
