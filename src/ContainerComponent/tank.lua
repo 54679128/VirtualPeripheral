@@ -1,4 +1,5 @@
 local localNet = require("localNet")
+local Base = require("ContainerComponent.base")
 local util = require("lib.util")
 -- 通用流体容器外设组件
 local out = {}
@@ -41,7 +42,7 @@ function TankDev:removeFluid(name, amount)
         error(("Param \"amount\" can't be %d"):format(amount))
     end
     amount = amount or self.tank.fluidList[slot].amount
-    local preRemove = math.min(amount , self.tank.fluidList[slot].amount)
+    local preRemove = math.min(amount, self.tank.fluidList[slot].amount)
     -- 移除流体
     local resultFluid = self.tank.fluidList[slot].fluid
     if preRemove >= self.tank.fluidList[slot].amount then
@@ -133,7 +134,7 @@ end
 ---@field storageCoefficient number 容器单槽位存储系数，单槽位可存储流体量 = 存储系数 * 该槽位容量上限（capacity）
 ---@field fluidList a546.Tank.FluidStack[] 流体列表
 ---@field dev a546.TankDev 供开发者和组件自身使用的函数集合
-local Tank = {}
+local Tank = setmetatable({}, Base)
 Tank.__index = Tank
 
 --- 创建一个流体储罐组件
@@ -141,8 +142,9 @@ Tank.__index = Tank
 ---@param storageCoefficient number
 ---@param capacityList number[]
 ---@return a546.Tank
-function out.make(size, storageCoefficient, capacityList)
+function out.make(size, storageCoefficient, capacityList)    
     local o = setmetatable({}, Tank)
+    ---@cast o a546.Tank
     o.type = "tank"
     o.invSize = math.max(size or 1, 1)
     o.storageCoefficient = storageCoefficient
