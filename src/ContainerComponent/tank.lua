@@ -1,6 +1,7 @@
 local localNet = require("localNet")
 local Base = require("ContainerComponent.base")
 local util = require("lib.util")
+local config = require("config")
 -- 通用流体容器外设组件
 local out = {}
 
@@ -155,6 +156,9 @@ function out.make(size, storageCoefficient, capacityList)
     end
     o.dev = setmetatable({}, TankDev)
     o.dev.tank = o
+    if config.readOnly() then
+        return util.readOnly(o)
+    end
     return o
 end
 

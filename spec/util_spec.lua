@@ -68,15 +68,11 @@ describe("对于readOnly函数", function()
         }
         local r = util.readOnly(testTable)
         assert.is.same(testTable, r)
-        r.a = 2
-        r.b = "get out"
-        r.c = function()
-            return -8
-        end
-        r.d = true
-        r.e = coroutine.create(function(...)
-
-        end)
+        assert.has.error(function() r.a = 2 end)
+        assert.has.error(function() r.b = "get out" end)
+        assert.has.error(function() r.c = function() return -8 end end)
+        assert.has.error(function() r.d = true end)
+        assert.has.error(function() r.e = coroutine.create(function(...) end) end)
         assert.is.same(testTable, r)
         assert.is.equal(util.readOnly(testTable), util.readOnly(testTable))
     end)
@@ -89,10 +85,16 @@ describe("对于readOnly函数", function()
         }
         local r = util.readOnly(testTable)
         assert.is.same(testTable, r)
-        r.a = 2
+        assert.has.error(function()
+            r.a = 2
+        end)
         assert.is.same(testTable, r)
-        r.a.b = 2
-        r.a.c = "get out"
+        assert.has.error(function()
+            r.a.b = 2
+        end)
+        assert.has.error(function()
+            r.a.c = "get out"
+        end)
         assert.is.same(testTable, r)
         assert.is.equal(util.readOnly(testTable), util.readOnly(testTable))
     end)
@@ -101,7 +103,9 @@ describe("对于readOnly函数", function()
         testTable.d = testTable
         local r = util.readOnly(testTable)
         assert.is.same(testTable, r)
-        r.d = 3
+        assert.has.error(function()
+            r.d = 3
+        end)
         assert.is.same(testTable, r)
         assert.is.equal(util.readOnly(testTable), util.readOnly(testTable))
     end)

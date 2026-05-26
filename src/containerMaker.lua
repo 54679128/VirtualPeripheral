@@ -1,3 +1,5 @@
+local config = require "config"
+local util   = require "lib.util"
 -- 规定如何组装一个假容器，并规定这个容器的相关信息如何存储
 local out = {}
 ---@type table<string,number>
@@ -52,6 +54,9 @@ function out.make(type, ...)
     end
     containerId[type] = id + 1
     o.type = type
+    if config.readOnly() then
+        return util.readOnly(o)
+    end
     return o
 end
 

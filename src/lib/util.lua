@@ -53,7 +53,7 @@ function out.readOnly(theTable)
     local pMetaTable = {}
 
     cache[theTable] = proxy -- 缓存真实表
-    cache[proxy] = proxy -- 缓存只读代理
+    cache[proxy] = proxy    -- 缓存只读代理
 
     pMetaTable.__index = function(t, k)
         local v = theTable[k]
@@ -79,6 +79,7 @@ function out.readOnly(theTable)
         end
     end
     pMetaTable.__newindex = function(t, k, v)
+        error(("Can't set table: %s, key: %s to value: %s"):format(tostring(theTable), tostring(k), tostring(v)), 2)
     end
     pMetaTable.__len = function(t)
         return #theTable

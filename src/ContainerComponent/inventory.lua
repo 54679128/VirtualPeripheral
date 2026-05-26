@@ -1,6 +1,7 @@
 local util = require("lib.util")
 local localNet = require("localNet")
 local Base = require("ContainerComponent.base")
+local config = require("config")
 -- 通用物品容器外设组件
 local out = {}
 
@@ -140,6 +141,9 @@ function out.make(size, storageCoefficient)
     o.itemList = {}
     o.dev = setmetatable({}, InventoryDev)
     o.dev.inv = o
+    if config.readOnly() then
+        return util.readOnly(o)
+    end
     return o
 end
 
