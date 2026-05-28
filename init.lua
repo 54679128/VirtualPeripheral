@@ -31,7 +31,7 @@ require = modifiedRequire
 
 -- 加载第一层模块
 loadModule("ContainerComponent.Inventory")
-loadModule("ContainerComponent.tank")
+loadModule("ContainerComponent.Tank")
 loadModule("localNet")
 loadApi("peripheral")
 loadModule("containerMaker")

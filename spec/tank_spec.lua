@@ -1,4 +1,4 @@
-local Tank = require("ContainerComponent.tank")
+local Tank = require("src.ContainerComponent.Tank")
 local localNet = require("localNet")
 local peripheral = require("peripheral")
 local containerMaker = require("containerMaker")
