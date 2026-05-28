@@ -9,7 +9,7 @@
 ## 提供的模块
 
 - **虚拟外设容器** (`containerMaker`)：组装包含多个组件的虚拟外设，自动生成唯一名称
-- **本地外设网络** (`localNet`)：管理外设网络，模拟 CC 的外设网络
+- **本地外设网络** (`LocalNet`)：管理外设网络，模拟 CC 的外设网络
 - **物品容器组件** (`Inventory`)：模拟 CC 的通用库存外设（Inventory），支持设置槽位总数、存储系数
 - **物品模块** (`Inventory.FakeItem`): 模拟 Minecraft 中的物品
 - **流体储罐组件** (`tank`)：模拟通用流体存储外设（fluid_storage），支持设置多槽位、多流体类型、储罐存储上限
@@ -85,22 +85,22 @@ local backpack = containerMaker.make("backpack", inv, tan)
 你可以像这样创建一个虚拟本地网络：
 
 ```lua
-local localNet = require("FakeContainerPeripheral").localNet
-local aNet = localNet.make()
+local LocalNet = require("FakeContainerPeripheral").LocalNet
+local aNet = LocalNet.make()
 ```
 
-`localNet.make`返回一个唯一标识着一个本地虚拟网络的整数，大部分`localNet`模块提供的函数都需要这样一个整数。
+`LocalNet.make`返回一个唯一标识着一个本地虚拟网络的整数，大部分`LocalNet`模块提供的函数都需要这样一个整数。
 
 想要向本地网络中添加或移除一个外设，你可以这样做：
 
 ```lua
-localNet.addPeripheral(aNet, chest)
-localNet.removePeripheral(aNet, chest.name)
+LocalNet.addPeripheral(aNet, chest)
+LocalNet.removePeripheral(aNet, chest.name)
 ```
 
 将一个外设添加到一个本地网络后，你就可以使用`peripheral` API 访问、包裹它。
 
-`localNet`模块还提供了其它功能，你可以自行查看相关注释。
+`LocalNet`模块还提供了其它功能，你可以自行查看相关注释。
 
 ## 运行测试
 

@@ -1,4 +1,4 @@
-local localNet = require("localNet")
+local LocalNet = require("LocalNet")
 
 local typeList = {}
 local function makeMockContainer(type)
@@ -13,7 +13,7 @@ describe("localNet模块测试", function()
     it("make函数应该返回连续且递增的值", function()
         local netId = {}
         for i = 1, 100 do
-            table.insert(netId, localNet.make())
+            table.insert(netId, LocalNet.make())
         end
         assert.is_unique(netId)
         for i = 1, 99 do
@@ -22,64 +22,64 @@ describe("localNet模块测试", function()
     end)
 
     it("尝试向不存在的网络加入外设应该报错", function()
-        local errorNet = localNet.make() + 1
+        local errorNet = LocalNet.make() + 1
         assert.error(function()
-            localNet.addPeripheral(errorNet, makeMockContainer("chest"))
+            LocalNet.addPeripheral(errorNet, makeMockContainer("chest"))
         end)
     end)
 
     it("同一外设不能被第二次加入同一网络", function()
-        local aNet = localNet.make()
+        local aNet = LocalNet.make()
         local testMock = makeMockContainer("chest")
-        localNet.addPeripheral(aNet, testMock)
+        LocalNet.addPeripheral(aNet, testMock)
         assert.error(function()
-            localNet.addPeripheral(aNet, testMock)
+            LocalNet.addPeripheral(aNet, testMock)
         end)
     end)
 
     it("同一外设在被移除前只能加入网络一次", function()
-        local aNet = localNet.make()
-        local bNet = localNet.make()
+        local aNet = LocalNet.make()
+        local bNet = LocalNet.make()
         local testMock = makeMockContainer("chest")
-        localNet.addPeripheral(aNet, testMock)
+        LocalNet.addPeripheral(aNet, testMock)
         assert.error(function()
-            localNet.addPeripheral(bNet, testMock)
+            LocalNet.addPeripheral(bNet, testMock)
         end)
-        localNet.removePeripheral(aNet, testMock.name)
+        LocalNet.removePeripheral(aNet, testMock.name)
         assert.no_error(function()
-            localNet.addPeripheral(bNet, testMock)
+            LocalNet.addPeripheral(bNet, testMock)
         end)
     end)
 
     it("尝试从不存在的网络移除外设应该报错", function()
-        local errorNet = localNet.make() + 1
+        local errorNet = LocalNet.make() + 1
         assert.error(function()
-            localNet.removePeripheral(errorNet, "gu")
+            LocalNet.removePeripheral(errorNet, "gu")
         end)
     end)
 
     it("尝试从存在的网络中移除不存在的外设应该报错", function()
-        local aNet = localNet.make()
+        local aNet = LocalNet.make()
         assert.error(function()
-            localNet.removePeripheral(aNet, "gu")
+            LocalNet.removePeripheral(aNet, "gu")
         end)
     end)
 
     it("尝试从不存在的网络中获取外设应该报错", function()
-        local errorNet = localNet.make() + 1
+        local errorNet = LocalNet.make() + 1
         assert.error(function ()
-            localNet.getPeripheral(errorNet)
+            LocalNet.getPeripheral(errorNet)
         end)
     end)
 
     it("添加并提取外设后外设对象不应发生改变", function()
-        local aNet = localNet.make()
+        local aNet = LocalNet.make()
         local testMock1 = makeMockContainer("chest")
         local testMOck2 = makeMockContainer("ae2_interface")
-        localNet.addPeripheral(aNet, testMock1)
-        localNet.addPeripheral(aNet, testMOck2)
-        local chest = localNet.getPeripheral(aNet, testMock1.name)
-        local ae2Interface = localNet.getPeripheral(aNet, testMOck2.name)
+        LocalNet.addPeripheral(aNet, testMock1)
+        LocalNet.addPeripheral(aNet, testMOck2)
+        local chest = LocalNet.getPeripheral(aNet, testMock1.name)
+        local ae2Interface = LocalNet.getPeripheral(aNet, testMOck2.name)
         assert.is_table(chest)
         assert.is_table(ae2Interface)
         assert.same(chest, testMock1)

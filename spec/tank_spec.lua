@@ -1,5 +1,5 @@
 local Tank = require("src.ContainerComponent.Tank")
-local localNet = require("localNet")
+local LocalNet = require("LocalNet")
 local peripheral = require("peripheral")
 local containerMaker = require("containerMaker")
 
@@ -175,8 +175,8 @@ describe("tank模块", function()
                 local capacityA = tankAProperties.capacityList[i]
                 local capacityB = tankBProperties.capacityList[i]
                 before_each(function()
-                    aNet = localNet.make()
-                    bNet = localNet.make()
+                    aNet = LocalNet.make()
+                    bNet = LocalNet.make()
                     tankAComponent = Tank.make(tankAProperties.sizeList[i], tankAProperties.storageCoefficient[i], tankAProperties.capacityList[i])
                     tankAComponent.dev:addFluid(water(), commonFluidInput)
                     tankBComponent = Tank.make(tankBProperties.sizeList[i], tankBProperties.storageCoefficient[i], tankBProperties.capacityList[i])
@@ -184,17 +184,17 @@ describe("tank模块", function()
                     tankB = containerMaker.make("bottle", tankBComponent)
                     tankC = containerMaker.make("bottle", Tank.make(1, 1, { 1 })) -- 这个外设主要是为了验证不同网络间的外设不能互相访问，组件设定（我写到这的时候忘记怎么描述这些参数了）之类的东西不用管
                     otherPeripheral = containerMaker.make("turtle")
-                    localNet.addPeripheral(aNet, tankA)
-                    localNet.addPeripheral(aNet, tankB)
-                    localNet.addPeripheral(bNet, tankC)
-                    localNet.addPeripheral(aNet, otherPeripheral)
+                    LocalNet.addPeripheral(aNet, tankA)
+                    LocalNet.addPeripheral(aNet, tankB)
+                    LocalNet.addPeripheral(bNet, tankC)
+                    LocalNet.addPeripheral(aNet, otherPeripheral)
                 end)
                 after_each(function()
                     -- ---@cast tankA a546.FakeContainer
                     -- ---@cast tankB a546.FakeContainer
-                    -- localNet.removePeripheral(aNet, tankA.name)
-                    -- localNet.removePeripheral(aNet, tankB.name)
-                    localNet.reset()
+                    -- LocalNet.removePeripheral(aNet, tankA.name)
+                    -- LocalNet.removePeripheral(aNet, tankB.name)
+                    LocalNet.reset()
                 end)
                 --- 从列表中查找指定流体</br>
                 --- 如果没找到会返回nil，同时第二个返回值为-1

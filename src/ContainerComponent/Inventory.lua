@@ -1,5 +1,5 @@
 local util = require("lib.util")
-local localNet = require("localNet")
+local LocalNet = require("LocalNet")
 local Base = require("ContainerComponent.base")
 local config = require("config")
 -- 通用物品容器外设组件
@@ -185,11 +185,11 @@ function Inventory:pushItems(toName, fromSlot, ...)
     end
 
     -- 检查参数合法
-    if not localNet.isPresent(toName) or not localNet.inSameNet(toName, self.fatherContainer.name) then
+    if not LocalNet.isPresent(toName) or not LocalNet.inSameNet(toName, self.fatherContainer.name) then
         error(("Can't find peripheral: %s"):format(toName), 2)
     end
     -- 查找远程外设
-    local targetComponent = localNet.getPeripheral(localNet.findPeripheral(toName) --[[@as integer]], toName).component[self.type]
+    local targetComponent = LocalNet.getPeripheral(LocalNet.findPeripheral(toName) --[[@as integer]], toName).component[self.type]
     if not targetComponent.type then
         error(("The peripheral: %s isn't Inventory"):format(toName), 2)
     end
@@ -212,11 +212,11 @@ end
 
 function Inventory:pullItems(fromName, fromSlot, ...)
     -- 检查参数合法
-    if not localNet.isPresent(fromName) or not localNet.inSameNet(fromName, self.fatherContainer.name) then
+    if not LocalNet.isPresent(fromName) or not LocalNet.inSameNet(fromName, self.fatherContainer.name) then
         error(("Can't find peripheral: %s"):format(fromName), 2)
     end
     -- 查找远程外设
-    local targetComponent = localNet.getPeripheral(localNet.findPeripheral(fromName) --[[@as integer]], fromName).component[self.type]
+    local targetComponent = LocalNet.getPeripheral(LocalNet.findPeripheral(fromName) --[[@as integer]], fromName).component[self.type]
     if not targetComponent then
         error(("The peripheral: %s isn't Inventory"):format(fromName), 2)
     end
