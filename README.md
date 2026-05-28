@@ -10,8 +10,8 @@
 
 - **虚拟外设容器** (`containerMaker`)：组装包含多个组件的虚拟外设，自动生成唯一名称
 - **本地外设网络** (`localNet`)：管理外设网络，模拟 CC 的外设网络
-- **物品容器组件** (`inventory`)：模拟 CC 的通用库存外设（inventory），支持设置槽位总数、存储系数
-- **物品模块** (`inventory.FakeItem`): 模拟 Minecraft 中的物品
+- **物品容器组件** (`Inventory`)：模拟 CC 的通用库存外设（Inventory），支持设置槽位总数、存储系数
+- **物品模块** (`Inventory.FakeItem`): 模拟 Minecraft 中的物品
 - **流体储罐组件** (`tank`)：模拟通用流体存储外设（fluid_storage），支持设置多槽位、多流体类型、储罐存储上限
 - **流体模块** (`tank.FakeFluid`): 模拟 Minecraft 中的流体
 - **Peripheral API 模拟** (`peripheral`)：提供与 CC 几乎一致的 `peripheral.wrap`、`peripheral.find`、`peripheral.call` 等 API，加载模块时自动注入到全局环境
@@ -38,12 +38,12 @@ local water = FakeFluid.make("minecraft:water")
 
 ### 创建外设组件
 
-该模块提供了`tank`和`inventory`模块，下面以这两种模块为例讲解。
+该模块提供了`tank`和`Inventory`模块，下面以这两种模块为例讲解。
 
 ```lua
-local inventory = require("FakeContainerPeripheral").inventory
+local Inventory = require("FakeContainerPeripheral").Inventory
 local tank = require("FakeContainerPeripheral").tank
-local inv = inventory.make(28, 1)
+local inv = Inventory.make(28, 1)
 local tan = tank.make(4, 1, {1000, 1000, 1000, 1000})
 local addItemCount = inv.dev:addItem(stone, 64, 1)
 local removedItem, removedCount = inv.dev:removeItem(1, 32)
@@ -51,9 +51,9 @@ local addFluidAmount = tan.dev:addFluid(water, 1000)
 local removedFluid, removedAmount = tan.dev:removeFluid(water.name, 500)
 ```
 
-你可以通过`inventory.make`的`size`和`storageCoefficient`参数来指定库存外设组件的槽位总数和堆叠系数（单槽位可存储物品数 = 存储系数 * 该槽位物品堆叠上限）；可以通过`tank.make`的`size`、`storageCoefficient`参数指定流体存储外设组件的储罐总数和存储系数，通过`capacityList`参数指定每个储罐的容量上限。
+你可以通过`Inventory.make`的`size`和`storageCoefficient`参数来指定库存外设组件的槽位总数和堆叠系数（单槽位可存储物品数 = 存储系数 * 该槽位物品堆叠上限）；可以通过`tank.make`的`size`、`storageCoefficient`参数指定流体存储外设组件的储罐总数和存储系数，通过`capacityList`参数指定每个储罐的容量上限。
 
-如你所见，创建好的`tank`以及`inventory`都有一个`dev`字段，你可通过这个字段中的方法向外设组件添加物品或流体。这些方法的返回值在此不再赘述。
+如你所见，创建好的`tank`以及`Inventory`都有一个`dev`字段，你可通过这个字段中的方法向外设组件添加物品或流体。这些方法的返回值在此不再赘述。
 
 由于代码结构问题，你在使用以及创建时需要注意以下几点：
 
