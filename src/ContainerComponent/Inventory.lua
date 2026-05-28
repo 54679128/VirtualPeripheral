@@ -1,5 +1,5 @@
 local util = require("lib.util")
-local localNet = require("localNet")
+local LocalNet = require("LocalNet")
 local Base = require("ContainerComponent.base")
 local config = require("config")
 -- 通用物品容器外设组件
@@ -7,8 +7,8 @@ local out = {}
 
 ---@alias slot number
 
----@class a546.inventoryDev
----@field inv a546.inventory
+---@class a546.InventoryDev
+---@field inv a546.Inventory
 local InventoryDev = {}
 InventoryDev.__index = InventoryDev
 
@@ -123,19 +123,19 @@ function FakeItem.make(name, stackLimit, nbt)
     return o
 end
 
----@class a546.inventory:a546.Component
----@field type "inventory" 标识组件类型，这应该是唯一的
+---@class a546.Inventory:a546.Component
+---@field type "Inventory" 标识组件类型，这应该是唯一的
 ---@field invSize number 容器大小
 ---@field storageCoefficient number 容器单槽位存储系数，单槽位可存储物品数 = 存储系数 * 该槽位物品堆叠上限
 ---@field itemList table<slot,{item:a546.FakeItem,count:integer}|nil> 物品列表
----@field dev a546.inventoryDev 供开发者和组件自身使用的函数集合
-local inventory = setmetatable({}, Base)
-inventory.__index = inventory
+---@field dev a546.InventoryDev 供开发者和组件自身使用的函数集合
+local Inventory = setmetatable({}, Base)
+Inventory.__index = Inventory
 
 function out.make(size, storageCoefficient)
-    local o = setmetatable({}, inventory)
-    ---@cast o a546.inventory
-    o.type = "inventory"
+    local o = setmetatable({}, Inventory)
+    ---@cast o a546.Inventory
+    o.type = "Inventory"
     o.invSize = math.max(size or 1, 1)
     o.storageCoefficient = storageCoefficient
     o.itemList = {}
@@ -147,11 +147,11 @@ function out.make(size, storageCoefficient)
     return o
 end
 
-function inventory:size()
+function Inventory:size()
     return self.invSize
 end
 
-function inventory:list()
+function Inventory:list()
     local result = {}
     for slot, itemStack in pairs(self.itemList) do
         local item = itemStack.item
@@ -164,16 +164,16 @@ function inventory:list()
     return result
 end
 
-function inventory:getItemDetail(slot)
-    local itemList = inventory:list()
+function Inventory:getItemDetail(slot)
+    local itemList = Inventory:list()
     return itemList[slot]
 end
 
-function inventory:getItemLimit(slot)
+function Inventory:getItemLimit(slot)
     return 64 * self.storageCoefficient
 end
 
-function inventory:pushItems(toName, fromSlot, ...)
+function Inventory:pushItems(toName, fromSlot, ...)
     -- 参数处理
     local limit, toSlot
     local paramCount = select("#", ...)
@@ -185,15 +185,15 @@ function inventory:pushItems(toName, fromSlot, ...)
     end
 
     -- 检查参数合法
-    if not localNet.isPresent(toName) or not localNet.inSameNet(toName, self.fatherContainer.name) then
+    if not LocalNet.isPresent(toName) or not LocalNet.inSameNet(toName, self.fatherContainer.name) then
         error(("Can't find peripheral: %s"):format(toName), 2)
     end
     -- 查找远程外设
-    local targetComponent = localNet.getPeripheral(localNet.findPeripheral(toName) --[[@as integer]], toName).component[self.type]
+    local targetComponent = LocalNet.getPeripheral(LocalNet.findPeripheral(toName) --[[@as integer]], toName).component[self.type]
     if not targetComponent.type then
-        error(("The peripheral: %s isn't inventory"):format(toName), 2)
+        error(("The peripheral: %s isn't Inventory"):format(toName), 2)
     end
-    ---@cast targetComponent a546.inventory
+    ---@cast targetComponent a546.Inventory
 
     -- 移除物品
     local transferItem, removedCount = self.dev:removeItem(fromSlot, limit)
@@ -210,17 +210,17 @@ function inventory:pushItems(toName, fromSlot, ...)
     self.dev:addItem(transferItem, removedCount - actuallyTransfer, fromSlot)
 end
 
-function inventory:pullItems(fromName, fromSlot, ...)
+function Inventory:pullItems(fromName, fromSlot, ...)
     -- 检查参数合法
-    if not localNet.isPresent(fromName) or not localNet.inSameNet(fromName, self.fatherContainer.name) then
+    if not LocalNet.isPresent(fromName) or not LocalNet.inSameNet(fromName, self.fatherContainer.name) then
         error(("Can't find peripheral: %s"):format(fromName), 2)
     end
     -- 查找远程外设
-    local targetComponent = localNet.getPeripheral(localNet.findPeripheral(fromName) --[[@as integer]], fromName).component[self.type]
+    local targetComponent = LocalNet.getPeripheral(LocalNet.findPeripheral(fromName) --[[@as integer]], fromName).component[self.type]
     if not targetComponent then
-        error(("The peripheral: %s isn't inventory"):format(fromName), 2)
+        error(("The peripheral: %s isn't Inventory"):format(fromName), 2)
     end
-    ---@cast targetComponent a546.inventory
+    ---@cast targetComponent a546.Inventory
     -- 检查槽位
     if fromSlot > self.invSize or fromSlot < 1 then
         error(("Param \"fromSlot\" must between %d and %d"):format(1, self.invSize), 2)

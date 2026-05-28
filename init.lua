@@ -30,11 +30,11 @@ require = modifiedRequire
 --print(("成功替换 require 函数"))
 
 -- 加载第一层模块
-loadModule("ContainerComponent.inventory")
-loadModule("ContainerComponent.tank")
-loadModule("localNet")
+loadModule("ContainerComponent.Inventory")
+loadModule("ContainerComponent.Tank")
+loadModule("LocalNet")
 loadApi("peripheral")
-loadModule("containerMaker")
+loadModule("VirtualPeripheral")
 loadModule("config")
 
 require = originRequire

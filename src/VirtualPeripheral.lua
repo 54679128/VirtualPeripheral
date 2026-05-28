@@ -5,17 +5,17 @@ local out = {}
 ---@type table<string,number>
 local containerId = {}
 
----@class a546.FakeContainer
+---@class a546.VirtualPeripheral
 ---@field name string
 ---@field type string
 ---@field component table<string,a546.Component>
 ---@field private __binding boolean
-local container = {__binding = false}
-container.__index = container
+local VirtualPeripheral = {__binding = false}
+VirtualPeripheral.__index = VirtualPeripheral
 
 --- 将某个外设组件绑定到自身
 ---@param source a546.Component
-function container:bind(source)
+function VirtualPeripheral:bind(source)
     if self.__binding then
         return
     end
@@ -36,7 +36,7 @@ end
 ---@param ... a546.Component 容器组件
 function out.make(type, ...)
     -- 初始化
-    local o = setmetatable({}, container)
+    local o = setmetatable({}, VirtualPeripheral)
     o.component = {}
     --
     local installComponent = {}

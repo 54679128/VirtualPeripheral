@@ -1,4 +1,4 @@
-local localNet = require("localNet")
+local LocalNet = require("LocalNet")
 
 -- 模拟 `peripheral` API，将被注入全局环境中
 local out = {}
@@ -18,17 +18,17 @@ local function assertExist(name)
         theName = name
     end
     ---@cast theName string
-    if not localNet.isPresent(theName) then
+    if not LocalNet.isPresent(theName) then
         error(("Can't find peripheral: %s"):format(theName), 3)
     end
 end
 
 function out.isPresent(name)
-    return localNet.isPresent(name)
+    return LocalNet.isPresent(name)
 end
 
 function out.getNames()
-    local peripheralList = localNet.getAllPeripheral()
+    local peripheralList = LocalNet.getAllPeripheral()
     local result = {}
     for peripheralName, _ in pairs(peripheralList) do
         table.insert(result, peripheralName)
@@ -38,7 +38,7 @@ end
 
 function out.wrap(name)
     assertExist(name)
-    local targetPeripheral = localNet.getPeripheral(localNet.findPeripheral(name) --[[@as integer]], name)
+    local targetPeripheral = LocalNet.getPeripheral(LocalNet.findPeripheral(name) --[[@as integer]], name)
     local result = {}
     result.__name = name
     result.__type = targetPeripheral.type
@@ -58,7 +58,7 @@ function out.getType(nameOrPeripheral)
         ---@cast nameOrPeripheral a546.WrapPeripheral
         return nameOrPeripheral.__type
     end
-    local targetPeripheral = localNet.getPeripheral(localNet.findPeripheral(nameOrPeripheral) --[[@as integer]],
+    local targetPeripheral = LocalNet.getPeripheral(LocalNet.findPeripheral(nameOrPeripheral) --[[@as integer]],
         nameOrPeripheral)
     local typeList = {}
     table.insert(typeList, targetPeripheral.type)
@@ -84,7 +84,7 @@ end
 
 function out.getMethods(name)
     assertExist(name)
-    local targetPeripheral = localNet.getPeripheral(localNet.findPeripheral(name) --[[@as integer]],
+    local targetPeripheral = LocalNet.getPeripheral(LocalNet.findPeripheral(name) --[[@as integer]],
         name)
     local result = {}
     for _, component in pairs(targetPeripheral.component) do
@@ -109,7 +109,7 @@ end
 function out.call(name, method, ...)
     assertExist(name)
     local targetMethod
-    local targetPeripheral = localNet.getPeripheral(localNet.findPeripheral(name) --[[@as integer]], name)
+    local targetPeripheral = LocalNet.getPeripheral(LocalNet.findPeripheral(name) --[[@as integer]], name)
     for _, component in pairs(targetPeripheral.component) do
         if not component[method] then            
             goto continue
@@ -129,7 +129,7 @@ function out.find(type, filter)
         return true
     end
     local result = {}
-    for peripheralName, per in pairs(localNet.getAllPeripheral()) do
+    for peripheralName, per in pairs(LocalNet.getAllPeripheral()) do
         if per.type ~= type then
             goto continue
         end

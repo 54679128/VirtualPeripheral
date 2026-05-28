@@ -1,7 +1,7 @@
-local Tank = require("ContainerComponent.tank")
-local localNet = require("localNet")
+local Tank = require("src.ContainerComponent.Tank")
+local LocalNet = require("LocalNet")
 local peripheral = require("peripheral")
-local containerMaker = require("containerMaker")
+local VirtualPeripheral = require("VirtualPeripheral")
 
 local theWater
 local function water()
@@ -164,8 +164,8 @@ describe("tank模块", function()
                 local tankC
                 local tankAComponent
                 local tankBComponent
-                ---@cast tankA a546.FakeContainer
-                ---@cast tankB a546.FakeContainer
+                ---@cast tankA a546.VirtualPeripheral
+                ---@cast tankB a546.VirtualPeripheral
                 ---@cast tankAComponent a546.Tank
                 ---@cast tankBComponent a546.Tank
                 local sizeA = tankAProperties.sizeList[i]
@@ -175,26 +175,26 @@ describe("tank模块", function()
                 local capacityA = tankAProperties.capacityList[i]
                 local capacityB = tankBProperties.capacityList[i]
                 before_each(function()
-                    aNet = localNet.make()
-                    bNet = localNet.make()
+                    aNet = LocalNet.make()
+                    bNet = LocalNet.make()
                     tankAComponent = Tank.make(tankAProperties.sizeList[i], tankAProperties.storageCoefficient[i], tankAProperties.capacityList[i])
                     tankAComponent.dev:addFluid(water(), commonFluidInput)
                     tankBComponent = Tank.make(tankBProperties.sizeList[i], tankBProperties.storageCoefficient[i], tankBProperties.capacityList[i])
-                    tankA = containerMaker.make("bottle", tankAComponent)
-                    tankB = containerMaker.make("bottle", tankBComponent)
-                    tankC = containerMaker.make("bottle", Tank.make(1, 1, { 1 })) -- 这个外设主要是为了验证不同网络间的外设不能互相访问，组件设定（我写到这的时候忘记怎么描述这些参数了）之类的东西不用管
-                    otherPeripheral = containerMaker.make("turtle")
-                    localNet.addPeripheral(aNet, tankA)
-                    localNet.addPeripheral(aNet, tankB)
-                    localNet.addPeripheral(bNet, tankC)
-                    localNet.addPeripheral(aNet, otherPeripheral)
+                    tankA = VirtualPeripheral.make("bottle", tankAComponent)
+                    tankB = VirtualPeripheral.make("bottle", tankBComponent)
+                    tankC = VirtualPeripheral.make("bottle", Tank.make(1, 1, { 1 })) -- 这个外设主要是为了验证不同网络间的外设不能互相访问，组件设定（我写到这的时候忘记怎么描述这些参数了）之类的东西不用管
+                    otherPeripheral = VirtualPeripheral.make("turtle")
+                    LocalNet.addPeripheral(aNet, tankA)
+                    LocalNet.addPeripheral(aNet, tankB)
+                    LocalNet.addPeripheral(bNet, tankC)
+                    LocalNet.addPeripheral(aNet, otherPeripheral)
                 end)
                 after_each(function()
-                    -- ---@cast tankA a546.FakeContainer
-                    -- ---@cast tankB a546.FakeContainer
-                    -- localNet.removePeripheral(aNet, tankA.name)
-                    -- localNet.removePeripheral(aNet, tankB.name)
-                    localNet.reset()
+                    -- ---@cast tankA a546.VirtualPeripheral
+                    -- ---@cast tankB a546.VirtualPeripheral
+                    -- LocalNet.removePeripheral(aNet, tankA.name)
+                    -- LocalNet.removePeripheral(aNet, tankB.name)
+                    LocalNet.reset()
                 end)
                 --- 从列表中查找指定流体</br>
                 --- 如果没找到会返回nil，同时第二个返回值为-1

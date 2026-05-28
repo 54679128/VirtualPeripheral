@@ -8,10 +8,10 @@
 
 ## 提供的模块
 
-- **虚拟外设容器** (`containerMaker`)：组装包含多个组件的虚拟外设，自动生成唯一名称
-- **本地外设网络** (`localNet`)：管理外设网络，模拟 CC 的外设网络
-- **物品容器组件** (`inventory`)：模拟 CC 的通用库存外设（inventory），支持设置槽位总数、存储系数
-- **物品模块** (`inventory.FakeItem`): 模拟 Minecraft 中的物品
+- **虚拟外设容器** (`VirtualPeripheral`)：组装包含多个组件的虚拟外设，自动生成唯一名称
+- **本地外设网络** (`LocalNet`)：管理外设网络，模拟 CC 的外设网络
+- **物品容器组件** (`Inventory`)：模拟 CC 的通用库存外设（Inventory），支持设置槽位总数、存储系数
+- **物品模块** (`Inventory.FakeItem`): 模拟 Minecraft 中的物品
 - **流体储罐组件** (`tank`)：模拟通用流体存储外设（fluid_storage），支持设置多槽位、多流体类型、储罐存储上限
 - **流体模块** (`tank.FakeFluid`): 模拟 Minecraft 中的流体
 - **Peripheral API 模拟** (`peripheral`)：提供与 CC 几乎一致的 `peripheral.wrap`、`peripheral.find`、`peripheral.call` 等 API，加载模块时自动注入到全局环境
@@ -38,12 +38,12 @@ local water = FakeFluid.make("minecraft:water")
 
 ### 创建外设组件
 
-该模块提供了`tank`和`inventory`模块，下面以这两种模块为例讲解。
+该模块提供了`tank`和`Inventory`模块，下面以这两种模块为例讲解。
 
 ```lua
-local inventory = require("FakeContainerPeripheral").inventory
+local Inventory = require("FakeContainerPeripheral").Inventory
 local tank = require("FakeContainerPeripheral").tank
-local inv = inventory.make(28, 1)
+local inv = Inventory.make(28, 1)
 local tan = tank.make(4, 1, {1000, 1000, 1000, 1000})
 local addItemCount = inv.dev:addItem(stone, 64, 1)
 local removedItem, removedCount = inv.dev:removeItem(1, 32)
@@ -51,9 +51,9 @@ local addFluidAmount = tan.dev:addFluid(water, 1000)
 local removedFluid, removedAmount = tan.dev:removeFluid(water.name, 500)
 ```
 
-你可以通过`inventory.make`的`size`和`storageCoefficient`参数来指定库存外设组件的槽位总数和堆叠系数（单槽位可存储物品数 = 存储系数 * 该槽位物品堆叠上限）；可以通过`tank.make`的`size`、`storageCoefficient`参数指定流体存储外设组件的储罐总数和存储系数，通过`capacityList`参数指定每个储罐的容量上限。
+你可以通过`Inventory.make`的`size`和`storageCoefficient`参数来指定库存外设组件的槽位总数和堆叠系数（单槽位可存储物品数 = 存储系数 * 该槽位物品堆叠上限）；可以通过`tank.make`的`size`、`storageCoefficient`参数指定流体存储外设组件的储罐总数和存储系数，通过`capacityList`参数指定每个储罐的容量上限。
 
-如你所见，创建好的`tank`以及`inventory`都有一个`dev`字段，你可通过这个字段中的方法向外设组件添加物品或流体。这些方法的返回值在此不再赘述。
+如你所见，创建好的`tank`以及`Inventory`都有一个`dev`字段，你可通过这个字段中的方法向外设组件添加物品或流体。这些方法的返回值在此不再赘述。
 
 由于代码结构问题，你在使用以及创建时需要注意以下几点：
 
@@ -63,16 +63,16 @@ local removedFluid, removedAmount = tan.dev:removeFluid(water.name, 500)
 ### 组装虚拟外设
 
 ```lua
-local containerMaker = require("FakeContainerPeripheral").containerMaker
-local chest = containerMaker.make("chest", inv)
-local bottle = containerMaker.make("bottle", tan)
+local VirtualPeripheral = require("FakeContainerPeripheral").VirtualPeripheral
+local chest = VirtualPeripheral.make("chest", inv)
+local bottle = VirtualPeripheral.make("bottle", tan)
 
 -- 或者
 --[[
-local backpack = containerMaker.make("backpack", inv, tan)
+local backpack = VirtualPeripheral.make("backpack", inv, tan)
 ]]
 ```
-`containerMaker.make`函数的参数信息可自行查看相关文件。
+`VirtualPeripheral.make`函数的参数信息可自行查看相关文件。
 
 由于代码结构问题，你在使用以及创建时需要注意以下几点：
 
@@ -85,22 +85,22 @@ local backpack = containerMaker.make("backpack", inv, tan)
 你可以像这样创建一个虚拟本地网络：
 
 ```lua
-local localNet = require("FakeContainerPeripheral").localNet
-local aNet = localNet.make()
+local LocalNet = require("FakeContainerPeripheral").LocalNet
+local aNet = LocalNet.make()
 ```
 
-`localNet.make`返回一个唯一标识着一个本地虚拟网络的整数，大部分`localNet`模块提供的函数都需要这样一个整数。
+`LocalNet.make`返回一个唯一标识着一个本地虚拟网络的整数，大部分`LocalNet`模块提供的函数都需要这样一个整数。
 
 想要向本地网络中添加或移除一个外设，你可以这样做：
 
 ```lua
-localNet.addPeripheral(aNet, chest)
-localNet.removePeripheral(aNet, chest.name)
+LocalNet.addPeripheral(aNet, chest)
+LocalNet.removePeripheral(aNet, chest.name)
 ```
 
 将一个外设添加到一个本地网络后，你就可以使用`peripheral` API 访问、包裹它。
 
-`localNet`模块还提供了其它功能，你可以自行查看相关注释。
+`LocalNet`模块还提供了其它功能，你可以自行查看相关注释。
 
 ## 运行测试
 
