@@ -1,6 +1,6 @@
 -- 规定如何创建一个本地外设网络，该网络该保存什么信息
 local out = {}
----@type table<number,table<string,a546.FakeContainer>>
+---@type table<number,table<string,a546.VirtualPeripheral>>
 local netList = {}
 
 --- 创建一个本地网络并返回
@@ -17,7 +17,7 @@ end
 
 --- 向指定 id 所代表的网络添加外设
 ---@param lNetId integer
----@param peripheral a546.FakeContainer
+---@param peripheral a546.VirtualPeripheral
 function out.addPeripheral(lNetId, peripheral)
     if out.isPresent(peripheral.name) then
         error(("The peripheral: %s has been add to some local net."):format(peripheral.name))
@@ -43,7 +43,7 @@ function out.removePeripheral(lNetId, name)
 end
 
 --- 获取所有网络中的所有外设
----@return table<string,a546.FakeContainer>
+---@return table<string,a546.VirtualPeripheral>
 function out.getAllPeripheral()
     local result = {}
     for i = 1, #netList do
@@ -59,7 +59,7 @@ end
 --- 不提供`name`参数时会返回指定网络中的所有外设
 ---@param lNetId integer
 ---@param name? string
----@return a546.FakeContainer|a546.FakeContainer[] 🐢
+---@return a546.VirtualPeripheral|a546.VirtualPeripheral[] 🐢
 function out.getPeripheral(lNetId, name)
     if not netList[lNetId] then
         error(("Local net id: %d doesn't exist!"):format(tonumber(lNetId)))

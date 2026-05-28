@@ -164,8 +164,8 @@ describe("tank模块", function()
                 local tankC
                 local tankAComponent
                 local tankBComponent
-                ---@cast tankA a546.FakeContainer
-                ---@cast tankB a546.FakeContainer
+                ---@cast tankA a546.VirtualPeripheral
+                ---@cast tankB a546.VirtualPeripheral
                 ---@cast tankAComponent a546.Tank
                 ---@cast tankBComponent a546.Tank
                 local sizeA = tankAProperties.sizeList[i]
@@ -190,8 +190,8 @@ describe("tank模块", function()
                     LocalNet.addPeripheral(aNet, otherPeripheral)
                 end)
                 after_each(function()
-                    -- ---@cast tankA a546.FakeContainer
-                    -- ---@cast tankB a546.FakeContainer
+                    -- ---@cast tankA a546.VirtualPeripheral
+                    -- ---@cast tankB a546.VirtualPeripheral
                     -- LocalNet.removePeripheral(aNet, tankA.name)
                     -- LocalNet.removePeripheral(aNet, tankB.name)
                     LocalNet.reset()

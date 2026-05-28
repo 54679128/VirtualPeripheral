@@ -5,7 +5,7 @@ local out = {}
 ---@type table<string,number>
 local containerId = {}
 
----@class a546.FakeContainer
+---@class a546.VirtualPeripheral
 ---@field name string
 ---@field type string
 ---@field component table<string,a546.Component>
