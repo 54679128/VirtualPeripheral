@@ -10,7 +10,7 @@ local config = {
 ---@param status? boolean
 ---@return boolean # 是否已开启只读保护
 function out.readOnly(status)
-    if status then
+    if type(status) == "boolean" then
         config.readOnly = status
     end
     return config.readOnly
