@@ -1,5 +1,5 @@
 local LocalNet = require("LocalNet")
-local containerMaker = require("containerMaker")
+local VirtualPeripheral = require("VirtualPeripheral")
 local peripheral = require("peripheral")
 local util = require("lib.util")
 local Base = require("ContainerComponent.base")
@@ -44,7 +44,7 @@ describe("模拟peripheralAPI测试", function()
     --         tempComponent[tempFuncName] = function()
     --             return randomNumber
     --         end
-    --         local aC = containerMaker.make("test", tempComponent)
+    --         local aC = VirtualPeripheral.make("test", tempComponent)
     --         LocalNet.addPeripheral(aNet, aC)
     --         local wrappedPeripheral = peripheral.wrap(aC.name)
     --         assert.is.equal(wrappedPeripheral.__name, aC.name)
@@ -59,8 +59,8 @@ describe("模拟peripheralAPI测试", function()
         local aNet = LocalNet.make()
         local bNet = LocalNet.make()
         for i = 1, 10, 1 do
-            local aC = containerMaker.make(randomString(7))
-            local bC = containerMaker.make(randomString(8))
+            local aC = VirtualPeripheral.make(randomString(7))
+            local bC = VirtualPeripheral.make(randomString(8))
             nameList[aC.name] = true
             nameList[bC.name] = true
             LocalNet.addPeripheral(aNet, aC)
@@ -79,8 +79,8 @@ describe("模拟peripheralAPI测试", function()
         local aNet = LocalNet.make()
         local bNet = LocalNet.make()
         for i = 1, 100, 1 do
-            local aC = containerMaker.make(randomString(8))
-            local bC = containerMaker.make(randomString(8))
+            local aC = VirtualPeripheral.make(randomString(8))
+            local bC = VirtualPeripheral.make(randomString(8))
             LocalNet.addPeripheral(aNet, aC)
             LocalNet.addPeripheral(bNet, bC)
             nameList[aC.name] = true
@@ -95,7 +95,7 @@ describe("模拟peripheralAPI测试", function()
         for i = 1, 100, 1 do
             local containerType = randomString(5)
             local componentType = randomString(8)
-            local aC = containerMaker.make(containerType, fakeComponent(componentType))
+            local aC = VirtualPeripheral.make(containerType, fakeComponent(componentType))
             LocalNet.addPeripheral(aNet, aC)
             assert.is.True(peripheral.hasType(aC.name, containerType))
             assert.is.True(peripheral.hasType(aC.name, componentType))
@@ -108,7 +108,7 @@ describe("模拟peripheralAPI测试", function()
         for i = 1, 100, 1 do
             local containerType = randomString(5)
             local componentType = randomString(8)
-            local aC = containerMaker.make(containerType, fakeComponent(componentType))
+            local aC = VirtualPeripheral.make(containerType, fakeComponent(componentType))
             LocalNet.addPeripheral(aNet, aC)
             local typeList = { peripheral.getType(aC.name) }
             local typeNumber = 0
@@ -129,7 +129,7 @@ describe("模拟peripheralAPI测试", function()
     --         tempComponent[tempFuncName] = function()
     --             return randomNumber
     --         end
-    --         local aC = containerMaker.make("call_test", tempComponent)
+    --         local aC = VirtualPeripheral.make("call_test", tempComponent)
     --         LocalNet.addPeripheral(aNet, aC)
     --         local result = peripheral.call(aC.name, tempFuncName)
     --         assert.is.equal(result, randomNumber)
@@ -148,7 +148,7 @@ describe("模拟peripheralAPI测试", function()
     --             end
     --             funcNameList[tempFuncName] = randomNumber
     --         end
-    --         local aC = containerMaker.make(randomString(5), tempComponent)
+    --         local aC = VirtualPeripheral.make(randomString(5), tempComponent)
     --         LocalNet.addPeripheral(aNet, aC)
     --         local methodList = peripheral.getMethods(aC.name)
     --         assert.is.Table(methodList)
@@ -166,7 +166,7 @@ describe("模拟peripheralAPI测试", function()
     --     tempComponent["test_func"] = function()
     --         return 1
     --     end
-    --     local aC = containerMaker.make(randomString(5), tempComponent)
+    --     local aC = VirtualPeripheral.make(randomString(5), tempComponent)
     --     LocalNet.addPeripheral(aNet, aC)
     --     local findPeripheral = peripheral.find(aC.type)
     --     local wrappedPeripheral = peripheral.wrap(aC.name)
@@ -226,10 +226,10 @@ describe("对于peripheral模块", function()
             end
         })
         componentC = fakeComponent("testComponentC")
-        aC = containerMaker.make("testA", componentA)
-        bC = containerMaker.make("testA", componentAA, componentB)
-        cC = containerMaker.make("testB", componentC)
-        dC = containerMaker.make("testB")
+        aC = VirtualPeripheral.make("testA", componentA)
+        bC = VirtualPeripheral.make("testA", componentAA, componentB)
+        cC = VirtualPeripheral.make("testB", componentC)
+        dC = VirtualPeripheral.make("testB")
         LocalNet.addPeripheral(aNet, aC)
         LocalNet.addPeripheral(aNet, bC)
         LocalNet.addPeripheral(aNet, cC)

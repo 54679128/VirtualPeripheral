@@ -1,7 +1,7 @@
 local Tank = require("src.ContainerComponent.Tank")
 local LocalNet = require("LocalNet")
 local peripheral = require("peripheral")
-local containerMaker = require("containerMaker")
+local VirtualPeripheral = require("VirtualPeripheral")
 
 local theWater
 local function water()
@@ -180,10 +180,10 @@ describe("tank模块", function()
                     tankAComponent = Tank.make(tankAProperties.sizeList[i], tankAProperties.storageCoefficient[i], tankAProperties.capacityList[i])
                     tankAComponent.dev:addFluid(water(), commonFluidInput)
                     tankBComponent = Tank.make(tankBProperties.sizeList[i], tankBProperties.storageCoefficient[i], tankBProperties.capacityList[i])
-                    tankA = containerMaker.make("bottle", tankAComponent)
-                    tankB = containerMaker.make("bottle", tankBComponent)
-                    tankC = containerMaker.make("bottle", Tank.make(1, 1, { 1 })) -- 这个外设主要是为了验证不同网络间的外设不能互相访问，组件设定（我写到这的时候忘记怎么描述这些参数了）之类的东西不用管
-                    otherPeripheral = containerMaker.make("turtle")
+                    tankA = VirtualPeripheral.make("bottle", tankAComponent)
+                    tankB = VirtualPeripheral.make("bottle", tankBComponent)
+                    tankC = VirtualPeripheral.make("bottle", Tank.make(1, 1, { 1 })) -- 这个外设主要是为了验证不同网络间的外设不能互相访问，组件设定（我写到这的时候忘记怎么描述这些参数了）之类的东西不用管
+                    otherPeripheral = VirtualPeripheral.make("turtle")
                     LocalNet.addPeripheral(aNet, tankA)
                     LocalNet.addPeripheral(aNet, tankB)
                     LocalNet.addPeripheral(bNet, tankC)

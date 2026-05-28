@@ -8,7 +8,7 @@
 
 ## 提供的模块
 
-- **虚拟外设容器** (`containerMaker`)：组装包含多个组件的虚拟外设，自动生成唯一名称
+- **虚拟外设容器** (`VirtualPeripheral`)：组装包含多个组件的虚拟外设，自动生成唯一名称
 - **本地外设网络** (`LocalNet`)：管理外设网络，模拟 CC 的外设网络
 - **物品容器组件** (`Inventory`)：模拟 CC 的通用库存外设（Inventory），支持设置槽位总数、存储系数
 - **物品模块** (`Inventory.FakeItem`): 模拟 Minecraft 中的物品
@@ -63,16 +63,16 @@ local removedFluid, removedAmount = tan.dev:removeFluid(water.name, 500)
 ### 组装虚拟外设
 
 ```lua
-local containerMaker = require("FakeContainerPeripheral").containerMaker
-local chest = containerMaker.make("chest", inv)
-local bottle = containerMaker.make("bottle", tan)
+local VirtualPeripheral = require("FakeContainerPeripheral").VirtualPeripheral
+local chest = VirtualPeripheral.make("chest", inv)
+local bottle = VirtualPeripheral.make("bottle", tan)
 
 -- 或者
 --[[
-local backpack = containerMaker.make("backpack", inv, tan)
+local backpack = VirtualPeripheral.make("backpack", inv, tan)
 ]]
 ```
-`containerMaker.make`函数的参数信息可自行查看相关文件。
+`VirtualPeripheral.make`函数的参数信息可自行查看相关文件。
 
 由于代码结构问题，你在使用以及创建时需要注意以下几点：
 

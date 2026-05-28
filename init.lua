@@ -34,7 +34,7 @@ loadModule("ContainerComponent.Inventory")
 loadModule("ContainerComponent.Tank")
 loadModule("LocalNet")
 loadApi("peripheral")
-loadModule("containerMaker")
+loadModule("VirtualPeripheral")
 loadModule("config")
 
 require = originRequire
