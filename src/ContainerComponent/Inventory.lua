@@ -113,13 +113,13 @@ out.FakeItem = FakeItem
 --- 创建一个假物品
 ---@param name string
 ---@param stackLimit number
----@param nbt table<string,any>
+---@param nbt? table<string,any>
 ---@return a546.FakeItem
 function FakeItem.make(name, stackLimit, nbt)
     local o = setmetatable({}, FakeItem)
     o.name = name
     o.stackLimit = stackLimit
-    o.nbt = nbt
+    o.nbt = nbt or {}
     return o
 end
 
