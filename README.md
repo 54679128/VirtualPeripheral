@@ -6,6 +6,10 @@
 
 一个轻量级的 ComputerCraft 外设模拟框架，用于在纯 Lua 环境中构建和测试虚拟外设及其交互逻辑。
 
+## 如何安装
+
+如果你已经安装了`luarocks`，你可以通过运行`luarocks install VirtualPeripheral`来安装该项目；如果没有，你也可简单的从github上的发行版中下载该模块到你的项目中（解压后得到的文件夹放入你的模块查找路径下）。
+
 ## 提供的模块
 
 - **虚拟外设容器** (`VirtualPeripheral`)：组装包含多个组件的虚拟外设，自动生成唯一名称
@@ -14,7 +18,7 @@
 - **物品模块** (`Inventory.FakeItem`): 模拟 Minecraft 中的物品
 - **流体储罐组件** (`tank`)：模拟通用流体存储外设（fluid_storage），支持设置多槽位、多流体类型、储罐存储上限
 - **流体模块** (`tank.FakeFluid`): 模拟 Minecraft 中的流体
-- **Peripheral API 模拟** (`peripheral`)：提供与 CC 几乎一致的 `peripheral.wrap`、`peripheral.find`、`peripheral.call` 等 API，加载模块时自动注入到全局环境
+- **peripheral API 模拟** (`peripheral`)：提供与 CC 几乎一致的 `peripheral.wrap`、`peripheral.find`、`peripheral.call` 等 API，加载模块时自动注入到全局环境
 
 ## 如何使用
 
@@ -23,8 +27,8 @@
 你可以像这样创建物品和流体
 
 ```lua
-local FakeItem = require("FakeContainerPeripheral").FakeItem
-local FakeFluid = require("FakeContainerPeripheral").FakeFluid
+local FakeItem = require("VirtualPeripheral").FakeItem
+local FakeFluid = require("VirtualPeripheral").FakeFluid
 local stone = FakeItem.make("minecraft:stone", 64, {})
 local water = FakeFluid.make("minecraft:water")
 ```
@@ -41,8 +45,8 @@ local water = FakeFluid.make("minecraft:water")
 该模块提供了`tank`和`Inventory`模块，下面以这两种模块为例讲解。
 
 ```lua
-local Inventory = require("FakeContainerPeripheral").Inventory
-local tank = require("FakeContainerPeripheral").tank
+local Inventory = require("VirtualPeripheral").Inventory
+local tank = require("VirtualPeripheral").tank
 local inv = Inventory.make(28, 1)
 local tan = tank.make(4, 1, {1000, 1000, 1000, 1000})
 local addItemCount = inv.dev:addItem(stone, 64, 1)
@@ -63,7 +67,7 @@ local removedFluid, removedAmount = tan.dev:removeFluid(water.name, 500)
 ### 组装虚拟外设
 
 ```lua
-local VirtualPeripheral = require("FakeContainerPeripheral").VirtualPeripheral
+local VirtualPeripheral = require("VirtualPeripheral").VirtualPeripheral
 local chest = VirtualPeripheral.make("chest", inv)
 local bottle = VirtualPeripheral.make("bottle", tan)
 
@@ -85,7 +89,7 @@ local backpack = VirtualPeripheral.make("backpack", inv, tan)
 你可以像这样创建一个虚拟本地网络：
 
 ```lua
-local LocalNet = require("FakeContainerPeripheral").LocalNet
+local LocalNet = require("VirtualPeripheral").LocalNet
 local aNet = LocalNet.make()
 ```
 
