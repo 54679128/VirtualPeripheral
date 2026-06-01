@@ -1,0 +1,270 @@
+---@meta
+
+-- ==================== 基础组件类型 ====================
+
+---@class a546.Component
+---@field type string 标识组件类型，这应该是唯一的
+---@field fatherContainer a546.VirtualPeripheral 被植入的容器对象
+local Component = {}
+
+--- 将自身绑定到一个虚拟外设上
+---@param target a546.VirtualPeripheral
+function Component:bindTo(target) end
+
+-- ==================== 虚拟外设类型 ====================
+
+---@class a546.VirtualPeripheral
+---@field name string
+---@field type string
+---@field component table<string, a546.Component>
+local VirtualPeripheral = {}
+
+--- 将某个外设组件绑定到自身
+---@param source a546.Component
+function VirtualPeripheral:bind(source) end
+
+-- ==================== 物品容器（Inventory）相关类型 ====================
+
+---@alias a546.slot number
+
+---@class a546.FakeItem
+---@field name string
+---@field stackLimit number
+---@field nbt table<string, any>
+
+---@class a546.InventoryDev
+---@field inv a546.Inventory
+local InventoryDev = {}
+
+--- 将物品从指定的槽位中移除
+---@param slot integer
+---@param count? integer
+---@return a546.FakeItem|nil
+---@return integer
+function InventoryDev:removeItem(slot, count) end
+
+--- 向组件中添加一个指定的物品
+---@param item a546.FakeItem
+---@param count integer
+---@param slot? integer
+---@return integer
+function InventoryDev:addItem(item, count, slot) end
+
+---@class a546.Inventory: a546.Component
+---@field type "Inventory" 标识组件类型，这应该是唯一的
+---@field invSize number 容器大小
+---@field storageCoefficient number 容器单槽位存储系数
+---@field itemList table<a546.slot, {item: a546.FakeItem, count: integer}|nil> 物品列表
+---@field dev a546.InventoryDev 供开发者和组件自身使用的函数集合
+local Inventory = {}
+
+---@return integer
+function Inventory:size() end
+
+---@return table<integer, {name: string, count: integer, nbt: string}>
+function Inventory:list() end
+
+---@param slot integer
+---@return {name: string, count: integer, nbt: string}|nil
+function Inventory:getItemDetail(slot) end
+
+---@param slot integer
+---@return integer
+function Inventory:getItemLimit(slot) end
+
+--- 将自身物品推送到另一个外设
+---@param toName string
+---@param fromSlot integer
+---@param limit? integer
+---@param toSlot? integer
+function Inventory:pushItems(toName, fromSlot, limit, toSlot) end
+
+--- 从另一个外设拉取物品到自身
+---@param fromName string
+---@param fromSlot integer
+---@param limit? integer
+---@param toSlot? integer
+function Inventory:pullItems(fromName, fromSlot, limit, toSlot) end
+
+-- ==================== 流体容器（Tank）相关类型 ====================
+
+---@class a546.FakeFluid
+---@field name string
+
+---@class a546.Tank.FluidStack
+---@field fluid a546.FakeFluid
+---@field amount number
+---@field capacity number
+
+---@class a546.TankDev
+---@field tank a546.Tank
+local TankDev = {}
+
+--- 移除指定的流体
+---@param name string
+---@param amount? number
+---@return a546.FakeFluid|nil
+---@return number
+function TankDev:removeFluid(name, amount) end
+
+--- 向组件中添加指定数量的流体
+---@param fluid a546.FakeFluid
+---@param amount? number
+---@return number
+function TankDev:addFluid(fluid, amount) end
+
+---@class a546.Tank: a546.Component
+---@field type "tank" 标识组件类型
+---@field invSize number 流体种类容量
+---@field storageCoefficient number 单槽位存储系数
+---@field fluidList a546.Tank.FluidStack[] 流体列表
+---@field dev a546.TankDev
+local Tank = {}
+
+---@return table<integer, {name: string, amount: number}>
+function Tank:tanks() end
+
+--- 推送流体到另一个外设
+---@param toName string
+---@param limit? number
+---@param fluidName? string
+---@return number
+function Tank:pushFluid(toName, limit, fluidName) end
+
+--- 从另一个外设拉取流体
+---@param fromName string
+---@param ... any
+---@return number
+function Tank:pullFluid(fromName, ...) end
+
+-- ==================== Inventory 子模块（lib.Inventory） ====================
+
+---@class VirtualPeripheral_InventoryModule
+local InventoryModule = {}
+
+--- 创建一个假物品
+---@param name string
+---@param stackLimit number
+---@param nbt? table<string, any>
+---@return a546.FakeItem
+function InventoryModule.FakeItem(name, stackLimit, nbt) end
+
+--- 创建一个物品容器（Inventory）组件
+---@param size integer
+---@param storageCoefficient number
+---@return a546.Inventory
+function InventoryModule.make(size, storageCoefficient) end
+
+-- ==================== Tank 子模块（lib.Tank） ====================
+
+---@class VirtualPeripheral_TankModule
+local TankModule = {}
+
+--- 创建一个假流体
+---@param name string
+---@return a546.FakeFluid
+function TankModule.FakeFluid(name) end
+
+--- 创建一个流体储罐（Tank）组件
+---@param size integer
+---@param storageCoefficient number
+---@param capacityList number[]
+---@return a546.Tank
+function TankModule.make(size, storageCoefficient, capacityList) end
+
+-- ==================== VirtualPeripheral 子模块（lib.VirtualPeripheral） ====================
+
+---@class VirtualPeripheral_VPModule
+local VPModule = {}
+
+--- 制造一个假容器外设
+---@param type string 容器类型
+---@param ... a546.Component 容器组件
+---@return a546.VirtualPeripheral
+function VPModule.make(type, ...) end
+
+-- ==================== LocalNet 子模块（lib.LocalNet） ====================
+
+---@class VirtualPeripheral_LocalNetModule
+local LocalNetModule = {}
+
+--- 创建一个本地网络并返回
+---@return integer 本地网络id
+function LocalNetModule.make() end
+
+--- 重置模块状态
+function LocalNetModule.reset() end
+
+--- 向指定 id 所代表的网络添加外设
+---@param lNetId integer
+---@param peripheral a546.VirtualPeripheral
+function LocalNetModule.addPeripheral(lNetId, peripheral) end
+
+--- 从指定 id 代表的网络移除外设
+---@param lNetId integer
+---@param name string
+function LocalNetModule.removePeripheral(lNetId, name) end
+
+--- 获取所有网络中的所有外设
+---@return table<string, a546.VirtualPeripheral>
+function LocalNetModule.getAllPeripheral() end
+
+--- 从指定 id 代表的网络获取外设
+---@param lNetId integer
+---@param name? string
+---@return a546.VirtualPeripheral|a546.VirtualPeripheral[]
+function LocalNetModule.getPeripheral(lNetId, name) end
+
+--- 查找指定外设位于哪个网络中
+---@param name string
+---@return integer|nil
+function LocalNetModule.findPeripheral(name) end
+
+--- 判断一个外设是否存在于某个本地网络
+---@param name string
+---@return boolean
+function LocalNetModule.isPresent(name) end
+
+--- 判断两个外设是否在同一个本地网络中
+---@param name1 string
+---@param name2 string
+---@return integer|nil
+function LocalNetModule.inSameNet(name1, name2) end
+
+-- ==================== config 子模块（lib.config） ====================
+
+---@class VirtualPeripheral_ConfigModule
+local ConfigModule = {}
+
+--- 设置/获取只读保护状态
+---@param status? boolean
+---@return boolean
+function ConfigModule.readOnly(status) end
+
+-- ==================== 主模块 ====================
+-- require("a546.VirtualPeripheral") 的返回值结构
+
+---@class VirtualPeripheral
+---@field VirtualPeripheral VirtualPeripheral_VPModule
+---@field Inventory VirtualPeripheral_InventoryModule
+---@field Tank VirtualPeripheral_TankModule
+---@field LocalNet VirtualPeripheral_LocalNetModule
+---@field config VirtualPeripheral_ConfigModule
+local M = {}
+
+---@type VirtualPeripheral_VPModule
+M.VirtualPeripheral = VPModule
+
+---@type VirtualPeripheral_InventoryModule
+M.Inventory = InventoryModule
+
+---@type VirtualPeripheral_TankModule
+M.Tank = TankModule
+
+---@type VirtualPeripheral_LocalNetModule
+M.LocalNet = LocalNetModule
+
+---@type VirtualPeripheral_ConfigModule
+M.config = ConfigModule
+
+return M
