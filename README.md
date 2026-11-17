@@ -27,10 +27,13 @@
 你可以像这样创建物品和流体
 
 ```lua
-local FakeItem = require("VirtualPeripheral").FakeItem
-local FakeFluid = require("VirtualPeripheral").FakeFluid
-local stone = FakeItem.make("minecraft:stone", 64, {})
-local water = FakeFluid.make("minecraft:water")
+local Inventory = require("VirtualPeripheral").Inventory
+local Tank = require("VirtualPeripheral").Tank
+local FakeItem = Inventory.FakeItem
+local FakeFluid = Tank.FakeFluid
+
+local stone = FakeItem.make("minecraft:stone", 64, {}) -- 物品，名为“minecraft:stone”，堆叠上限为64，无额外nbt
+local water = FakeFluid.make("minecraft:water") -- 流体，名为“minecraft:water”
 ```
 
 `FakeItem.make`有三个参数，`name`、`stackLimit`以及`nbt`，而`FakeFluid`只有一个参数`name`。
@@ -42,16 +45,17 @@ local water = FakeFluid.make("minecraft:water")
 
 ### 创建外设组件
 
-该模块提供了`tank`和`Inventory`模块，下面以这两种模块为例讲解。
+该模块目前提供了`tank`和`Inventory`模块，下面以这两种模块为例讲解。
 
 ```lua
 local Inventory = require("VirtualPeripheral").Inventory
-local tank = require("VirtualPeripheral").tank
-local inv = Inventory.make(28, 1)
-local tan = tank.make(4, 1, {1000, 1000, 1000, 1000})
-local addItemCount = inv.dev:addItem(stone, 64, 1)
+local Tank = require("VirtualPeripheral").Tank
+
+local inv = Inventory.make(28, 1) -- 创建一个槽位上限为28，堆叠系数为1的物品存储组件
+local tan = Tank.make(4, 1, {1000, 1000, 1000, 1000}) -- 创建一个可容纳四种流体，堆叠系数为1，每个储罐均为1000mb的流体存储组件
+local addItemCount = inv.dev:addItem(stone, 64, 1) -- 向物品存储组件的1号槽位中加入物品`stone`
 local removedItem, removedCount = inv.dev:removeItem(1, 32)
-local addFluidAmount = tan.dev:addFluid(water, 1000)
+local addFluidAmount = tan.dev:addFluid(water, 1000) -- 向流体存储组件中加入流体`water`
 local removedFluid, removedAmount = tan.dev:removeFluid(water.name, 500)
 ```
 
@@ -63,6 +67,7 @@ local removedFluid, removedAmount = tan.dev:removeFluid(water.name, 500)
 
 - 除非你知道你在做什么，否则不要通过`dev`字段提供的函数以外的方式修改创建好的外设组件；
 - 在创建流体存储外设组件时，**`#capacityList`必须等于`size`**；
+- 槽位编号总是从1开始
 
 ### 组装虚拟外设
 
@@ -71,7 +76,7 @@ local VirtualPeripheral = require("VirtualPeripheral").VirtualPeripheral
 local chest = VirtualPeripheral.make("chest", inv)
 local bottle = VirtualPeripheral.make("bottle", tan)
 
--- 或者
+-- 该函数可接受多个不同类型（注意，不同类型）的组件，所以你可以这么写
 --[[
 local backpack = VirtualPeripheral.make("backpack", inv, tan)
 ]]
@@ -106,6 +111,16 @@ LocalNet.removePeripheral(aNet, chest.name)
 
 `LocalNet`模块还提供了其它功能，你可以自行查看相关注释。
 
+### 模块配置
+
+该模块提供了`config`子模块用于配置一些可选功能。目前，该子模块仅用于配置“是否开启只读模式”，即使用者是否能修改创建出的流体、物品存储组件、虚拟外设、物品和流体。目前该配置默认启用。具体示例如下：
+
+```lua
+local config = require("VirtualPeripheral").config
+print(("ReadOnly feature is %s"):format(tostring(config.readOnly()--[[不带参数调用时会返回当前配置的值]])))
+config.readOnly(false) -- 关闭只读保护功能
+```
+
 ## 运行测试
 
 本项目使用 [Busted](https://lunarmodules.github.io/busted/) 作为测试框架。确保已安装 Busted 后，在项目根目录执行：
@@ -122,3 +137,5 @@ busted
 
 - 目前，`pullFluid`和`pullItems`等方法只能访问同一网络的限制是在函数内手动编写的，将来应该会使用其它方式限制；
 - 目前，`list`等方法返回的`nbt`与 CC:Tweaked 中的返回值并不相同，我现在只是用物品序列化的`nbt`字段代替；
+- 目前，并发调用包裹外设中的函数与顺序调用相比，两者所消耗的时间几乎相同，我希望未来能有所改进；
+- 更好的命名，我完全不知道为什么当初我会让一个子模块与模块本身同名；
