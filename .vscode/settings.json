@@ -1,0 +1,18 @@
+{
+    "Lua.workspace.library": [
+        "${3rd}/luassert/library",
+        "${addons}/busted/module/library"
+    ],
+    "Lua.workspace.checkThirdParty": false,
+    "Lua.format.defaultConfig": {
+        "max_line_length": "unset",
+        "align_continuous_assign_statement": "false",
+        "auto_collapse_lines": "false",
+        "align_function_params": "true",
+        "call_arg_parentheses": "keep",
+        "line_space_after_function_statement": "fixed(2)",
+        "align_continuous_rect_table_field ": "false",
+        "trailing_table_separator": "always",
+        "indent_style": "tab"
+    }
+}
